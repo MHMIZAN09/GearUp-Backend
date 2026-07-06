@@ -16,6 +16,6 @@ model User {
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
 
-  @@index([email])
   @@map("users")
+  reviews Review[]
 }

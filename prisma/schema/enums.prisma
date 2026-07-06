@@ -16,13 +16,17 @@ enum GearItemStatus {
   OUT_OF_STOCK
 }
 
-
 enum RentalOrderStatus {
-  PAID
   PENDING
+  CONFIRMED
   PICKED_UP
   RETURNED
-  CANCELED
-  CONFIRMED
+  CANCELLED
+}
 
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  CANCELLED
 }

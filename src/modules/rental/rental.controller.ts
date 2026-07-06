@@ -1,14 +1,14 @@
-import { NextFunction, Request, Response } from 'express';
+import { Request, Response } from 'express';
 import status from 'http-status';
 import { catchAsync } from '../../utils/catchAsync';
 import { sendResponse } from '../../utils/sendResponse';
 import { rentalService } from './rental.service';
 
-const createRentalOrder = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+const createRentalOrder = catchAsync(async (req: Request, res: Response) => {
   const payload = req.body;
-  const customerId = req.user?.id;
+  const customer = req.user!;
 
-  const result = await rentalService.createRentalOrderIntoDB(customerId as string, payload);
+  const result = await rentalService.createRentalOrderIntoDB(customer, payload);
 
   sendResponse(res, {
     statusCode: status.CREATED,
@@ -18,7 +18,7 @@ const createRentalOrder = catchAsync(async (req: Request, res: Response, next: N
   });
 });
 
-const getMyRentalOrders = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+const getMyRentalOrders = catchAsync(async (req: Request, res: Response) => {
   const customerId = req.user?.id;
 
   const result = await rentalService.getMyRentalOrdersFromDB(customerId as string);
@@ -31,11 +31,31 @@ const getMyRentalOrders = catchAsync(async (req: Request, res: Response, next: N
   });
 });
 
-const getSingleRentalOrder = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {},
-);
+const getSingleRentalOrder = catchAsync(async (req: Request, res: Response) => {
+  const customerId = req.user?.id;
+  const rentalOrderId = req.params.id;
 
-const cancelRentalOrder = catchAsync(async (req: Request, res: Response, next: NextFunction) => {});
+  const result = await rentalService.getSingleRentalOrderFromDB(
+    customerId as string,
+    rentalOrderId as string
+  );
+
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: 'Rental order retrieved successfully',
+    data: result,
+  });
+});
+
+const cancelRentalOrder = catchAsync(async (req: Request, res: Response) => {
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: 'Cancel rental order API not implemented yet',
+    data: null,
+  });
+});
 
 export const RentalController = {
   createRentalOrder,

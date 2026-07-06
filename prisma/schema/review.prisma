@@ -1,0 +1,18 @@
+model Review {
+  id      String  @id @default(uuid())
+  rating  Int
+  comment String?
+
+  gearItemId String
+
+  gearItem GearItem @relation(fields: [gearItemId], references: [id], onDelete: Cascade)
+
+  customerId String
+
+  customer  User     @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([gearItemId])
+  @@index([customerId])
+}

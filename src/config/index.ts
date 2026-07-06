@@ -13,6 +13,9 @@ const config = {
   jwt_refresh_secret: process.env.JWT_REFRESH_TOKEN_SECRET!,
   jwt_access_expiration: process.env.JWT_ACCESS_TOKEN_EXPIRATION!,
   jwt_refresh_expiration: process.env.JWT_REFRESH_TOKEN_EXPIRATION!,
+
+  ssl_commerz_store_id: process.env.SSLCOMMERZ_STORE_ID!,
+  ssl_commerz_store_pass: process.env.SSLCOMMERZ_STORE_PASSWORD!,
 };
 
 export default config;

@@ -1,10 +1,11 @@
-import { Prisma } from '../../../generated/prisma/browser';
+import { Prisma } from '../../../generated/prisma/client';
 import { GearItemStatus } from '../../../generated/prisma/enums';
 import { prisma } from '../../lib/prisma';
+import { paymentService } from '../payment/payment.service';
 import { ICreateRentalOrderPayload } from './rental.interface';
 
-const createRentalOrderIntoDB = async (customerId: string, payload: ICreateRentalOrderPayload) => {
-  if (!customerId) {
+const createRentalOrderIntoDB = async (authCustomer: any, payload: ICreateRentalOrderPayload) => {
+  if (!authCustomer?.id) {
     throw new Error('Customer id is required');
   }
 
@@ -48,30 +49,31 @@ const createRentalOrderIntoDB = async (customerId: string, payload: ICreateRenta
     throw new Error('Duplicate gear item is not allowed in the same rental order');
   }
 
-  const result = await prisma.$transaction(async (tx) => {
-    const customer = await tx.user.findUnique({
+  const createdData = await prisma.$transaction(async (tx) => {
+    const dbCustomer = await tx.user.findUnique({
       where: {
-        id: customerId,
+        id: authCustomer.id,
       },
       select: {
         id: true,
         name: true,
         email: true,
         contactNumber: true,
+        address: true,
         role: true,
         status: true,
       },
     });
 
-    if (!customer) {
+    if (!dbCustomer) {
       throw new Error('Customer not found');
     }
 
-    if (customer.role !== 'CUSTOMER') {
+    if (dbCustomer.role !== 'CUSTOMER') {
       throw new Error('Only customers can create rental orders');
     }
 
-    if (customer.status !== 'ACTIVE') {
+    if (dbCustomer.status !== 'ACTIVE') {
       throw new Error('Your account is not active. You cannot create rental order');
     }
 
@@ -115,7 +117,6 @@ const createRentalOrderIntoDB = async (customerId: string, payload: ICreateRenta
       }
 
       const perDayPrice = new Prisma.Decimal(gearItem.pricePerDay);
-
       const subTotal = perDayPrice.mul(quantity).mul(rentalDays);
 
       return {
@@ -130,68 +131,18 @@ const createRentalOrderIntoDB = async (customerId: string, payload: ICreateRenta
       return sum.plus(item.subTotal);
     }, new Prisma.Decimal(0));
 
-    for (const item of rentalOrderItemsData) {
-      const updatedResult = await tx.gearItem.updateMany({
-        where: {
-          id: item.gearItemId,
-          quantityAvailable: {
-            gte: item.quantity,
-          },
-        },
-        data: {
-          quantityAvailable: {
-            decrement: item.quantity,
-          },
-        },
-      });
-
-      if (updatedResult.count === 0) {
-        throw new Error('Gear item quantity is not available');
-      }
-
-      const updatedGearItem = await tx.gearItem.findUnique({
-        where: {
-          id: item.gearItemId,
-        },
-        select: {
-          id: true,
-          quantityAvailable: true,
-        },
-      });
-
-      if (updatedGearItem && updatedGearItem.quantityAvailable <= 0) {
-        await tx.gearItem.update({
-          where: {
-            id: updatedGearItem.id,
-          },
-          data: {
-            status: GearItemStatus.UNAVAILABLE,
-          },
-        });
-      }
-    }
-
     const rentalOrder = await tx.rentalOrder.create({
       data: {
-        customerId,
+        customerId: dbCustomer.id,
         startDate: start,
         endDate: end,
         notes,
         totalAmount,
-
         rentalItems: {
           create: rentalOrderItemsData,
         },
       },
       include: {
-        customer: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            contactNumber: true,
-          },
-        },
         rentalItems: {
           include: {
             gearItem: {
@@ -200,16 +151,6 @@ const createRentalOrderIntoDB = async (customerId: string, payload: ICreateRenta
                 name: true,
                 brand: true,
                 imageUrl: true,
-                pricePerDay: true,
-                quantityAvailable: true,
-                provider: {
-                  select: {
-                    id: true,
-                    name: true,
-                    email: true,
-                    contactNumber: true,
-                  },
-                },
               },
             },
           },
@@ -217,10 +158,21 @@ const createRentalOrderIntoDB = async (customerId: string, payload: ICreateRenta
       },
     });
 
-    return rentalOrder;
+    return {
+      customer: dbCustomer,
+      rentalOrder,
+    };
   });
 
-  return result;
+  const paymentData = await paymentService.initiatePayment(
+    createdData.customer,
+    createdData.rentalOrder,
+  );
+
+  return {
+    order: createdData.rentalOrder,
+    paymentURL: paymentData.GetWayURL,
+  };
 };
 
 const getMyRentalOrdersFromDB = async (customerId: string) => {
@@ -246,6 +198,34 @@ const getMyRentalOrdersFromDB = async (customerId: string) => {
               imageUrl: true,
               pricePerDay: true,
               quantityAvailable: true,
+            },
+          },
+        },
+      },
+      payments: true,
+    },
+  });
+
+  return rentalOrders;
+};
+
+const getSingleRentalOrderFromDB = async (customerId: string, rentalOrderId: string) => {
+  const rentalOrder = await prisma.rentalOrder.findFirst({
+    where: {
+      id: rentalOrderId,
+      customerId,
+    },
+    include: {
+      rentalItems: {
+        include: {
+          gearItem: {
+            select: {
+              id: true,
+              name: true,
+              brand: true,
+              imageUrl: true,
+              pricePerDay: true,
+              quantityAvailable: true,
               provider: {
                 select: {
                   id: true,
@@ -258,13 +238,19 @@ const getMyRentalOrdersFromDB = async (customerId: string) => {
           },
         },
       },
+      payments: true,
     },
   });
 
-  return rentalOrders;
+  if (!rentalOrder) {
+    throw new Error('Rental order not found');
+  }
+
+  return rentalOrder;
 };
 
 export const rentalService = {
   createRentalOrderIntoDB,
   getMyRentalOrdersFromDB,
+  getSingleRentalOrderFromDB,
 };
