@@ -8,3 +8,10 @@ enum UserStatus {
   ACTIVE
   BLOCKED
 }
+
+enum GearItemStatus {
+  AVAILABLE
+  UNAVAILABLE
+  MAINTENANCE
+  OUT_OF_STOCK
+}
