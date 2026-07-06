@@ -52,9 +52,61 @@ const deleteUser = catchAsync(async (req: Request, res: Response, next: NextFunc
   });
 });
 
+const getAllGears = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  const result = await adminService.getAllGears();
+
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: 'All gears retrieved successfully',
+    data: result,
+  });
+});
+
+const getGearById = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  const { id } = req.params;
+  const result = await adminService.getGearById(id as string);
+
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: 'Gear retrieved successfully',
+    data: result,
+  });
+});
+
+const updateGearStatus = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  const { id } = req.params;
+
+  const result = await adminService.updateGearStatus(id as string, req.body.status);
+
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: 'Gear status updated successfully',
+    data: result,
+  });
+});
+
+const deleteGear = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  const { id } = req.params;
+  const result = await adminService.deleteGear(id as string);
+
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: 'Gear deleted successfully',
+    data: result,
+  });
+});
+
 export const adminController = {
   getAllUsers,
   getUserById,
   updateUserStatus,
   deleteUser,
+  getAllGears,
+  getGearById,
+  updateGearStatus,
+  deleteGear,
 };

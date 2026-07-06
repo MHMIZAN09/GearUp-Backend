@@ -257,7 +257,6 @@ const updateGearStatus = async (providerId: string, gearId: string, status: Gear
         },
       },
     },
-    
   });
   return gear;
 };
