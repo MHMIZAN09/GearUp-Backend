@@ -37,7 +37,7 @@ const getSingleRentalOrder = catchAsync(async (req: Request, res: Response) => {
 
   const result = await rentalService.getSingleRentalOrderFromDB(
     customerId as string,
-    rentalOrderId as string
+    rentalOrderId as string,
   );
 
   sendResponse(res, {

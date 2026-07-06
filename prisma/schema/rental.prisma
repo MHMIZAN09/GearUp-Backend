@@ -29,7 +29,7 @@ model RentalOrderItem {
   perDayPrice Decimal @db.Decimal(10, 2)
   subTotal    Decimal @db.Decimal(10, 2)
 
-  rentalOrder RentalOrder @relation(fields: [rentalOrderId], references: [id])
+  rentalOrder RentalOrder @relation(fields: [rentalOrderId], references: [id], onDelete: Cascade)
 
   gearItem GearItem @relation(fields: [gearItemId], references: [id], onDelete: Cascade)
 

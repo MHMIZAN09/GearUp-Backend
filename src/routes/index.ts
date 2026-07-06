@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { adminRoutes } from '../modules/admin/admin.route';
 import { authRoutes } from '../modules/auth/auth.route';
 import { categoryRoutes } from '../modules/category/category.route';
 import { gearRoutes } from '../modules/gear/gear.route';
@@ -14,5 +15,5 @@ router.use('/category', categoryRoutes);
 router.use('/gear', gearRoutes);
 router.use('/rental', rentalRoutes);
 router.use('/payment', paymentRoutes);
-
+router.use('/admin', adminRoutes);
 export const indexRoutes = router;

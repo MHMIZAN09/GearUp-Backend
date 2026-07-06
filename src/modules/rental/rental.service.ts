@@ -151,6 +151,7 @@ const createRentalOrderIntoDB = async (authCustomer: any, payload: ICreateRental
                 name: true,
                 brand: true,
                 imageUrl: true,
+                pricePerDay: true,
               },
             },
           },
