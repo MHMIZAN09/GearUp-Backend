@@ -2,12 +2,14 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express, { Request, Response } from 'express';
 import status from 'http-status';
+import config from './config';
+import { indexRoutes } from './routes';
 
 const app = express();
 
 app.use(
   cors({
-    origin: 'http://localhost:5173',
+    origin: config.appUrl,
     credentials: true,
   }),
 );
@@ -23,5 +25,7 @@ app.get('/', (req: Request, res: Response) => {
     message: 'Welcome to the Gearbox API Server!',
   });
 });
+
+app.use('/api', indexRoutes);
 
 export default app;
