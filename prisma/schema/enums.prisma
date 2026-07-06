@@ -15,3 +15,14 @@ enum GearItemStatus {
   MAINTENANCE
   OUT_OF_STOCK
 }
+
+
+enum RentalOrderStatus {
+  PAID
+  PENDING
+  PICKED_UP
+  RETURNED
+  CANCELED
+  CONFIRMED
+
+}
