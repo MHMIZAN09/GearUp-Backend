@@ -18,6 +18,7 @@ model RentalOrder {
   @@index([customerId])
   @@index([status])
   @@map("rental_orders")
+  reviews Review[]
 }
 
 model RentalOrderItem {

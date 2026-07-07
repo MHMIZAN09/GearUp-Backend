@@ -26,7 +26,8 @@ const getAllCategories = catchAsync(async (req: Request, res: Response, next: Ne
     success: true,
     statusCode: status.OK,
     message: 'Categories retrieved successfully',
-    data: categories,
+    data: categories.categories,
+    meta: categories.meta,
   });
 });
 

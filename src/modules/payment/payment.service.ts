@@ -84,7 +84,7 @@ const validatePayment = async (
           id: orderId,
         },
         data: {
-          status: 'COMPLETED',
+          status: 'CONFIRMED',
         },
       });
       const rentalOrder = await tx.rentalOrder.findUnique({

@@ -3,16 +3,19 @@ model Review {
   rating  Int
   comment String?
 
-  gearItemId String
+  gearItemId    String
+  customerId    String
+  rentalOrderId String
 
-  gearItem GearItem @relation(fields: [gearItemId], references: [id], onDelete: Cascade)
+  gearItem    GearItem    @relation(fields: [gearItemId], references: [id], onDelete: Cascade)
+  customer    User        @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  rentalOrder RentalOrder @relation(fields: [rentalOrderId], references: [id], onDelete: Cascade)
 
-  customerId String
-
-  customer  User     @relation(fields: [customerId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@unique([gearItemId, customerId, rentalOrderId])
   @@index([gearItemId])
   @@index([customerId])
+  @@index([rentalOrderId])
 }

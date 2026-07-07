@@ -2,6 +2,7 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express, { Request, Response } from 'express';
 import status from 'http-status';
+
 import config from './config';
 import { indexRoutes } from './routes';
 

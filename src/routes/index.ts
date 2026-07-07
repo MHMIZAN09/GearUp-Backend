@@ -5,6 +5,7 @@ import { categoryRoutes } from '../modules/category/category.route';
 import { gearRoutes } from '../modules/gear/gear.route';
 import { paymentRoutes } from '../modules/payment/payment.route';
 import { rentalRoutes } from '../modules/rental/rental.route';
+import { reviewRoutes } from '../modules/review/review.route';
 import { userRoutes } from '../modules/user/user.route';
 
 const router = Router();
@@ -15,5 +16,7 @@ router.use('/category', categoryRoutes);
 router.use('/gear', gearRoutes);
 router.use('/rental', rentalRoutes);
 router.use('/payment', paymentRoutes);
+router.use('/review', reviewRoutes);
 router.use('/admin', adminRoutes);
+
 export const indexRoutes = router;
