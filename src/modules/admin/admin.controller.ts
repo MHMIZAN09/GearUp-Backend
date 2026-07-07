@@ -55,13 +55,15 @@ const deleteUser = catchAsync(async (req: Request, res: Response, next: NextFunc
 });
 
 const getAllGears = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-  const result = await adminService.getAllGears();
+  const query = req.query;
+  const result = await adminService.getAllGears(query);
 
   sendResponse(res, {
     statusCode: status.OK,
     success: true,
     message: 'All gears retrieved successfully',
-    data: result,
+    data: result.gears,
+    meta: result.meta,
   });
 });
 
