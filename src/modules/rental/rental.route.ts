@@ -4,7 +4,7 @@ import { auth } from '../../middlewares/auth';
 import { RentalController } from './rental.controller';
 
 const router = express.Router();
-
+// ? done testing
 router.post('/', auth(Role.CUSTOMER), RentalController.createRentalOrder);
 
 router.get('/', auth(Role.CUSTOMER), RentalController.getMyRentalOrders);

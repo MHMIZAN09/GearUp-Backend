@@ -5,6 +5,7 @@ import { userController } from './user.controller';
 
 const router = Router();
 
+// done testing
 router.put(
   '/my-profile',
   auth(Role.ADMIN, Role.CUSTOMER, Role.PROVIDER),

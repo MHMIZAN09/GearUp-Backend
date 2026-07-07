@@ -104,6 +104,63 @@ const deleteGear = catchAsync(async (req: Request, res: Response, next: NextFunc
   });
 });
 
+const getAllRentals = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  const query = req.query;
+  const result = await adminService.getAllRentals(query);
+
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: 'All rentals retrieved successfully',
+    data: result.rentals,
+    meta: result.meta,
+  });
+});
+
+const getRentalById = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  const { id } = req.params;
+  const result = await adminService.getRentalById(id as string);
+
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: 'Rental retrieved successfully',
+    data: result,
+  });
+});
+
+const updateRentalStatus = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  const { id } = req.params;
+
+  const result = await adminService.updateRentalStatus(id as string, req.body.status);
+
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: 'Rental status updated successfully',
+    data: result,
+  });
+});
+
+const deleteRental = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  
+  const { id } = req.params;
+  const result = await adminService.deleteRental(id as string);
+
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: 'Rental deleted successfully',
+    data: result,
+  });
+});
+
+const getAllReviews = catchAsync(async (req: Request, res: Response, next: NextFunction) => {});
+
+const getReviewById = catchAsync(async (req: Request, res: Response, next: NextFunction) => {});
+
+const deleteReview = catchAsync(async (req: Request, res: Response, next: NextFunction) => {});
+
 const getAnalytics = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
   const result = await adminService.getAnalytics();
 
@@ -115,14 +172,72 @@ const getAnalytics = catchAsync(async (req: Request, res: Response, next: NextFu
   });
 });
 
+const createCategory = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  const result = await adminService.createCategory(req.body);
+
+  sendResponse(res, {
+    statusCode: status.CREATED,
+    success: true,
+    message: 'Category created successfully',
+    data: result,
+  });
+});
+
+const updateCategory = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  const { id } = req.params;
+  const result = await adminService.updateCategory(id as string, req.body);
+
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: 'Category updated successfully',
+    data: result,
+  });
+});
+
+const deleteCategory = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  const { id } = req.params;
+  const result = await adminService.deleteCategory(id as string);
+
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: 'Category deleted successfully',
+    data: result,
+  });
+});
+
+const getAllPayments = catchAsync(async (req: Request, res: Response, next: NextFunction) => {});
+
+const getPaymentById = catchAsync(async (req: Request, res: Response, next: NextFunction) => {});
+
 export const adminController = {
+  // users
   getAllUsers,
   getUserById,
   updateUserStatus,
   deleteUser,
+  // gears
   getAllGears,
   getGearById,
   updateGearStatus,
   deleteGear,
+  // Rentals
+  getAllRentals,
+  getRentalById,
+  updateRentalStatus,
+  deleteRental,
+  // reviews
+  getAllReviews,
+  getReviewById,
+  deleteReview,
+  // category service
+  createCategory,
+  updateCategory,
+  deleteCategory,
+  // payments
+  getAllPayments,
+  getPaymentById,
+  // analytics
   getAnalytics,
 };

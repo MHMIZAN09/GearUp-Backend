@@ -1,4 +1,4 @@
-import { GearItemStatus } from '../../../generated/prisma/enums';
+import { GearItemStatus, RentalOrderStatus } from '../../../generated/prisma/enums';
 import { prisma } from '../../lib/prisma';
 import { ICreateGearItem, IUpdateGearItem } from '../gear/gear.interface';
 
@@ -219,13 +219,126 @@ const updateGearStatus = async (providerId: string, gearId: string, status: Gear
   return gear;
 };
 
-const getOrders = async () => {
-  const orders = await prisma.rentalOrder.findMany({});
+const getAllRentals = async (providerId: string) => {
+  const rentals = await prisma.rentalOrder.findMany({
+    where: {
+      rentalItems: {
+        some: {
+          gearItem: {
+            providerId: providerId,
+          },
+        },
+      },
+    },
+    include: {
+      rentalItems: {
+        include: {
+          gearItem: {
+            select: {
+              id: true,
+              name: true,
+              brand: true,
+              imageUrl: true,
+              pricePerDay: true,
+              quantityAvailable: true,
+            },
+          },
+        },
+      },
+      payments: true,
+    },
+  });
+
+  return rentals;
 };
 
-const getOrderById = async () => {};
+const getRentalById = async (providerId: string, rentalId: string) => {
+  const rental = await prisma.rentalOrder.findFirst({
+    where: {
+      id: rentalId,
+      rentalItems: {
+        some: {
+          gearItem: {
+            providerId: providerId,
+          },
+        },
+      },
+    },
+    include: {
+      rentalItems: {
+        include: {
+          gearItem: {
+            select: {
+              id: true,
+              name: true,
+              brand: true,
+              imageUrl: true,
+              pricePerDay: true,
+              quantityAvailable: true,
+            },
+          },
+        },
+      },
+      payments: true,
+    },
+  });
 
-const updateOrderStatus = async () => {};
+  if (!rental) {
+    throw new Error('Rental not found or you do not have permission to view it');
+  }
+
+  return rental;
+};
+
+const updateRentalStatus = async (
+  providerId: string,
+  rentalId: string,
+  status: RentalOrderStatus,
+) => {
+  const existingRental = await prisma.rentalOrder.findFirst({
+    where: {
+      id: rentalId,
+      rentalItems: {
+        some: {
+          gearItem: {
+            providerId: providerId,
+          },
+        },
+      },
+    },
+  });
+
+  if (!existingRental) {
+    throw new Error('Rental not found or you do not have permission to update its status');
+  }
+
+  const rental = await prisma.rentalOrder.update({
+    where: {
+      id: rentalId,
+    },
+    data: {
+      status,
+    },
+    include: {
+      rentalItems: {
+        include: {
+          gearItem: {
+            select: {
+              id: true,
+              name: true,
+              brand: true,
+              imageUrl: true,
+              pricePerDay: true,
+              quantityAvailable: true,
+            },
+          },
+        },
+      },
+      payments: true,
+    },
+  });
+  return rental;
+};
 
 export const providerService = {
   createGear,
@@ -235,7 +348,7 @@ export const providerService = {
   deleteGear,
   updateGearStock,
   updateGearStatus,
-  getOrders,
-  getOrderById,
-  updateOrderStatus,
+  getAllRentals,
+  getRentalById,
+  updateRentalStatus,
 };

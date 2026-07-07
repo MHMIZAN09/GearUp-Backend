@@ -1,6 +1,12 @@
-import { GearItemStatus, UserStatus } from '../../../generated/prisma/enums';
-import { GearItemWhereInput, UserWhereInput } from '../../../generated/prisma/models';
+import { GearItemStatus, RentalOrderStatus, UserStatus } from '../../../generated/prisma/enums';
+import {
+  GearItemWhereInput,
+  RentalOrderWhereInput,
+  UserWhereInput,
+} from '../../../generated/prisma/models';
 import { prisma } from '../../lib/prisma';
+import { ICreateCategory, IUpdateCategory } from '../category/category.interface';
+import { IRentalQuery } from '../rental/rental.interface';
 import { IGearQuery, IUserQuery } from './admin.interface';
 
 const getAllUsers = async (query: IUserQuery) => {
@@ -305,6 +311,148 @@ const deleteGear = async (gearId: string) => {
   });
 };
 
+const getAllRentals = async (query: IRentalQuery) => {
+  const limit = query.limit ? Number(query.limit) : 10;
+  const page = query.page ? Number(query.page) : 1;
+  const skip = (page - 1) * limit;
+
+  const sortBy = query.sortBy ? query.sortBy : 'createdAt';
+  const sortOrder = query.sortOrder ? query.sortOrder : 'desc';
+
+  const andConditions: RentalOrderWhereInput[] = [];
+
+  if (query.status) {
+    andConditions.push({ status: query.status });
+  }
+
+  const rentals = await prisma.rentalOrder.findMany({
+    where: {
+      AND: andConditions,
+    },
+    include: {
+      rentalItems: {
+        include: {
+          gearItem: true,
+        },
+      },
+      payments: true,
+    },
+    take: limit,
+    skip: skip,
+    orderBy: {
+      [sortBy]: sortOrder,
+    },
+  });
+
+  const totalRentals = await prisma.rentalOrder.count({
+    where: {
+      AND: andConditions,
+    },
+  });
+
+  return {
+    rentals,
+    meta: {
+      page,
+      limit,
+      total: totalRentals,
+      totalPages: Math.ceil(totalRentals / limit),
+    },
+  };
+};
+const getRentalById = async (rentalId: string) => {
+  const rental = await prisma.rentalOrder.findUnique({
+    where: {
+      id: rentalId,
+    },
+    include: {
+      rentalItems: {
+        include: {
+          gearItem: true,
+        },
+      },
+      payments: true,
+    },
+  });
+
+  return rental;
+};
+
+const updateRentalStatus = async (rentalId: string, status: RentalOrderStatus) => {
+  const updatedRental = await prisma.rentalOrder.update({
+    where: {
+      id: rentalId,
+    },
+    data: {
+      status,
+    },
+  });
+
+  return updatedRental;
+};
+
+const deleteRental = async (rentalId: string) => {
+  await prisma.rentalOrder.delete({
+    where: {
+      id: rentalId,
+    },
+  });
+};
+
+// category service
+const createCategory = async (payload: ICreateCategory) => {
+  const existingCategory = await prisma.category.findUnique({
+    where: {
+      name: payload.name,
+    },
+  });
+  if (existingCategory) {
+    throw new Error('Category already exists');
+  }
+  const category = await prisma.category.create({
+    data: {
+      ...payload,
+    },
+  });
+  return category;
+};
+
+const updateCategory = async (categoryId: string, payload: IUpdateCategory) => {
+  const category = await prisma.category.findUnique({
+    where: {
+      id: categoryId,
+    },
+  });
+  if (!category) {
+    throw new Error('Category not found');
+  }
+  const updatedCategory = await prisma.category.update({
+    where: {
+      id: categoryId,
+    },
+    data: {
+      ...payload,
+    },
+  });
+  return updatedCategory;
+};
+
+const deleteCategory = async (categoryId: string) => {
+  const category = await prisma.category.findUnique({
+    where: {
+      id: categoryId,
+    },
+  });
+  if (!category) {
+    throw new Error('Category not found');
+  }
+  await prisma.category.delete({
+    where: {
+      id: categoryId,
+    },
+  });
+};
+
 const getAnalytics = async () => {
   const totalUsers = await prisma.user.count();
   const totalGears = await prisma.gearItem.count();
@@ -324,5 +472,13 @@ export const adminService = {
   getGearById,
   updateGearStatus,
   deleteGear,
+  getAllRentals,
+  getRentalById,
+  updateRentalStatus,
+  deleteRental,
+  // category service
+  createCategory,
+  updateCategory,
+  deleteCategory,
   getAnalytics,
 };

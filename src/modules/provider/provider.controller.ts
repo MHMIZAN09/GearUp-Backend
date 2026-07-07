@@ -112,11 +112,46 @@ const updateGearStatus = catchAsync(async (req: Request, res: Response, next: Ne
   });
 });
 
-const getOrders = catchAsync(async (req: Request, res: Response, next: NextFunction) => {});
+const getAllRentals = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  const providerId = req.user?.id;
+  const rentals = await providerService.getAllRentals(providerId as string);
 
-const getOrderById = catchAsync(async (req: Request, res: Response, next: NextFunction) => {});
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: 'All rentals retrieved successfully',
+    data: rentals,
+  });
+});
 
-const updateOrderStatus = catchAsync(async (req: Request, res: Response, next: NextFunction) => {});
+const getRentalById = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  const providerId = req.user?.id;
+  const rentalId = req.params.id;
+  const rental = await providerService.getRentalById(providerId as string, rentalId as string);
+
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: 'Rental retrieved successfully',
+    data: rental,
+  });
+});
+
+const updateRentalStatus = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const providerId = req.user?.id;
+    const rentalId = req.params.id;
+    const { status } = req.body;
+    const updatedRental = await providerService.updateRentalStatus(providerId as string, rentalId as string, status);
+
+    sendResponse(res, {
+      statusCode: status.OK,
+      success: true,
+      message: 'Rental status updated successfully',
+      data: updatedRental,
+    });
+  }
+);
 
 export const providerController = {
   createGear,
@@ -126,7 +161,7 @@ export const providerController = {
   deleteGear,
   updateGearStock,
   updateGearStatus,
-  getOrders,
-  getOrderById,
-  updateOrderStatus,
+  getAllRentals,
+  getRentalById,
+  updateRentalStatus,
 };
