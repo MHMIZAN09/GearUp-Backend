@@ -4,22 +4,21 @@ import { TReview } from './review.interface';
 const createReview = async (customerId: string, payload: TReview) => {
   const { gearItemId, rentalOrderId, rating, comment } = payload;
 
-  // Rating validation
-  if (rating < 1 || rating > 5) {
-    throw new Error('Rating must be between 1 and 5');
-  }
+  const gearItem = await prisma.gearItem.findUnique({
+    where: {
+      id: gearItemId,
+    },
+  });
 
-  // Comment validation
-  if (!comment?.trim()) {
-    throw new Error('Comment is required');
+  if (!gearItem) {
+    throw new Error('Gear item not found');
   }
-
-  // Check rental order
   const rentalOrder = await prisma.rentalOrder.findFirst({
     where: {
       id: rentalOrderId,
       customerId,
       status: 'RETURNED',
+
       rentalItems: {
         some: {
           gearItemId,
@@ -29,10 +28,9 @@ const createReview = async (customerId: string, payload: TReview) => {
   });
 
   if (!rentalOrder) {
-    throw new Error('You can only review a gear after returning the rental order');
+    throw new Error('You can only review gear after returning the rental order');
   }
 
-  // Duplicate review check
   const existingReview = await prisma.review.findUnique({
     where: {
       gearItemId_customerId_rentalOrderId: {
@@ -44,11 +42,10 @@ const createReview = async (customerId: string, payload: TReview) => {
   });
 
   if (existingReview) {
-    throw new Error('You have already reviewed this gear');
+    throw new Error('You have already reviewed this gear for this rental order');
   }
 
-  // Create review
-  const review = await prisma.review.create({
+  const result = await prisma.review.create({
     data: {
       gearItemId,
       customerId,
@@ -57,26 +54,22 @@ const createReview = async (customerId: string, payload: TReview) => {
       comment,
     },
     include: {
+      gearItem: true,
+      rentalOrder: true,
       customer: {
         select: {
           id: true,
           name: true,
-        },
-      },
-      gearItem: {
-        select: {
-          id: true,
-          name: true,
-          imageUrl: true,
+          email: true,
+          role: true,
         },
       },
     },
   });
 
-
-
-  return review;
+  return result;
 };
+
 
 export const reviewService = {
   createReview,

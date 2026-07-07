@@ -5,15 +5,10 @@ import { sendResponse } from '../../utils/sendResponse';
 import { reviewService } from './review.service';
 
 const createReview = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-  const customerId = req.user!.id;
+  const customerId = req.user?.id;
+  const payload = req.body;
 
-  const payload = {
-    ...req.body,
-    rentalOrderId: req.params.rentalOrderId,
-  };
-
-  const result = await reviewService.createReview(customerId, payload);
-
+  const result = await reviewService.createReview(customerId as string, payload);
   sendResponse(res, {
     success: true,
     statusCode: status.CREATED,
