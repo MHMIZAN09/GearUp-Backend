@@ -1,8 +1,9 @@
 import { Prisma } from '../../../generated/prisma/client';
 import { GearItemStatus } from '../../../generated/prisma/enums';
+import { RentalOrderWhereInput } from '../../../generated/prisma/models';
 import { prisma } from '../../lib/prisma';
 import { paymentService } from '../payment/payment.service';
-import { ICreateRentalOrderPayload } from './rental.interface';
+import { ICreateRentalOrderPayload, IRentalQuery } from './rental.interface';
 
 const createRentalOrderIntoDB = async (authCustomer: any, payload: ICreateRentalOrderPayload) => {
   if (!authCustomer?.id) {
@@ -176,9 +177,24 @@ const createRentalOrderIntoDB = async (authCustomer: any, payload: ICreateRental
   };
 };
 
-const getMyRentalOrdersFromDB = async (customerId: string) => {
-  if (!customerId) {
-    throw new Error('Customer id is required');
+const getMyRentalOrdersFromDB = async (customerId: string, query: IRentalQuery) => {
+  const limit = query.limit ? Number(query.limit) : 10;
+  const page = query.page ? Number(query.page) : 1;
+  const skip = (page - 1) * limit;
+
+  const sortBy = query.sortBy ? query.sortBy : 'createdAt';
+  const sortOrder = query.sortOrder ? query.sortOrder : 'desc';
+
+  const andConditions: RentalOrderWhereInput[] = [];
+
+  if(query.searchTerm) {
+    andConditions.push({
+      OR: [
+        {
+          notes: { contains: query.searchTerm, mode: 'insensitive' },
+        },
+      ],
+    });
   }
 
   const rentalOrders = await prisma.rentalOrder.findMany({

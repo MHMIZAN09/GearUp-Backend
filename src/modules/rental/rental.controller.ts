@@ -20,8 +20,8 @@ const createRentalOrder = catchAsync(async (req: Request, res: Response) => {
 
 const getMyRentalOrders = catchAsync(async (req: Request, res: Response) => {
   const customerId = req.user?.id;
-
-  const result = await rentalService.getMyRentalOrdersFromDB(customerId as string);
+  const query = req.query;
+  const result = await rentalService.getMyRentalOrdersFromDB(customerId as string, query);
 
   sendResponse(res, {
     statusCode: status.OK,

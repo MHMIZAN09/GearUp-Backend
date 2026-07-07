@@ -21,6 +21,18 @@ const updateMyProfile = async (userId: string, payload: IUserUpdatePayload) => {
   return updateUser;
 };
 
+const getMyProfile = async (userId: string) => {
+  const user = await prisma.user.findUniqueOrThrow({
+    where: { id: userId },
+    omit: {
+      password: true,
+    },
+  });
+
+  return user;
+};
+
 export const userService = {
   updateMyProfile,
+  getMyProfile,
 };

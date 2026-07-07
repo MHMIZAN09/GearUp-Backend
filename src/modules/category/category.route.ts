@@ -5,12 +5,12 @@ import { categoryController } from './category.controller';
 
 const router = Router();
 
-router.post('/', auth(Role.ADMIN, Role.PROVIDER), categoryController.createCategory);
 router.get('/', categoryController.getAllCategories);
-
 router.get('/:id', categoryController.getCategoryById);
 
-router.put('/:id', auth(Role.ADMIN, Role.CUSTOMER), categoryController.updateCategory);
-router.delete('/:id', auth(Role.ADMIN, Role.CUSTOMER), categoryController.deleteCategory);
+// private routes for admin
+router.post('/', auth(Role.ADMIN), categoryController.createCategory);
+router.put('/:id', auth(Role.ADMIN), categoryController.updateCategory);
+router.delete('/:id', auth(Role.ADMIN), categoryController.deleteCategory);
 
 export const categoryRoutes = router;
