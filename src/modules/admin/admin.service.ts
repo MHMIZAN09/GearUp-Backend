@@ -1,8 +1,39 @@
 import { GearItemStatus, UserStatus } from '../../../generated/prisma/enums';
+import { UserWhereInput } from '../../../generated/prisma/models';
 import { prisma } from '../../lib/prisma';
+import { IUserQuery } from './admin.interface';
 
-const getAllUsers = async () => {
+const getAllUsers = async (query: IUserQuery) => {
+  const limit = query.limit ? Number(query.limit) : 10;
+  const page = query.page ? Number(query.page) : 1;
+  const skip = (page - 1) * limit;
+
+  const sortBy = query.sortBy ? query.sortBy : 'createdAt';
+  const sortOrder = query.sortOrder ? query.sortOrder : 'desc';
+
+  const andConditions: UserWhereInput[] = [];
+
+  if (query.searchTerm) {
+    andConditions.push({
+      OR: [
+        { name: { contains: query.searchTerm, mode: 'insensitive' } },
+        { email: { contains: query.searchTerm, mode: 'insensitive' } },
+      ],
+    });
+  }
+
+  if (query.status) {
+    andConditions.push({ status: query.status });
+  }
+
+  if (query.role) {
+    andConditions.push({ role: query.role });
+  }
+
   const users = await prisma.user.findMany({
+    where: {
+      AND: andConditions,
+    },
     select: {
       id: true,
       name: true,
@@ -12,11 +43,26 @@ const getAllUsers = async () => {
       contactNumber: true,
       address: true,
     },
+    take: limit,
+    skip: skip,
     orderBy: {
-      createdAt: 'desc',
+      [sortBy]: sortOrder,
     },
   });
-  return users;
+  const totalUsers = await prisma.user.count({
+    where: {
+      AND: andConditions,
+    },
+  });
+
+  return {
+    users,
+    meta: {
+      page,
+      limit,
+      total: totalUsers,
+    },
+  };
 };
 
 const getUserById = async (userId: string) => {
