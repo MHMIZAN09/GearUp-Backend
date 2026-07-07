@@ -305,6 +305,16 @@ const deleteGear = async (gearId: string) => {
   });
 };
 
+const getAnalytics = async () => {
+  const totalUsers = await prisma.user.count();
+  const totalGears = await prisma.gearItem.count();
+
+  return {
+    totalUsers,
+    totalGears,
+  };
+};
+
 export const adminService = {
   getAllUsers,
   getUserById,
@@ -314,4 +324,5 @@ export const adminService = {
   getGearById,
   updateGearStatus,
   deleteGear,
+  getAnalytics,
 };

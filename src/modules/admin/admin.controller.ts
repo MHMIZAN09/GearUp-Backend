@@ -104,6 +104,17 @@ const deleteGear = catchAsync(async (req: Request, res: Response, next: NextFunc
   });
 });
 
+const getAnalytics = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  const result = await adminService.getAnalytics();
+
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: 'Analytics retrieved successfully',
+    data: result,
+  });
+});
+
 export const adminController = {
   getAllUsers,
   getUserById,
@@ -113,4 +124,5 @@ export const adminController = {
   getGearById,
   updateGearStatus,
   deleteGear,
+  getAnalytics,
 };

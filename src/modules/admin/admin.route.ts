@@ -15,4 +15,7 @@ router.get('/gears/:id', adminController.getGearById);
 router.put('/gears/:id/status', adminController.updateGearStatus);
 router.delete('/gears/:id', adminController.deleteGear);
 
+
+router.get("/analytics", adminController.getAnalytics);
+
 export const adminRoutes = router;
