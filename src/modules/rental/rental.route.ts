@@ -11,4 +11,5 @@ router.get('/', auth(Role.CUSTOMER), RentalController.getMyRentalOrders);
 
 router.get('/:id', auth(Role.CUSTOMER), RentalController.getSingleRentalOrder);
 
+router.patch('/:id/cancel', auth(Role.CUSTOMER), RentalController.cancelRentalOrder);
 export const rentalRoutes = router;

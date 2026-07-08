@@ -301,8 +301,69 @@ const getSingleRentalOrderFromDB = async (customerId: string, rentalOrderId: str
   return rentalOrder;
 };
 
+const cancelRentalOrderInDB = async (customerId: string, rentalOrderId: string) => {
+  const result = await prisma.$transaction(async (tx) => {
+    const rentalOrder = await tx.rentalOrder.findFirst({
+      where: {
+        id: rentalOrderId,
+        customerId,
+      },
+      include: {
+        rentalItems: true,
+        payments: true,
+      },
+    });
+
+    if (!rentalOrder) {
+      throw new Error('Rental order not found');
+    }
+
+    if (rentalOrder.status !== 'PENDING') {
+      throw new Error('Only pending rental orders can be cancelled');
+    }
+
+    const updatedRentalOrder = await tx.rentalOrder.update({
+      where: {
+        id: rentalOrderId,
+      },
+      data: {
+        status: 'CANCELLED',
+      },
+      select: {
+        id: true,
+        startDate: true,
+        endDate: true,
+        notes: true,
+        totalAmount: true,
+        status: true,
+        rentalItems: {
+          select: {
+            id: true,
+            gearItemId: true,
+            quantity: true,
+            gearItem: {
+              select: {
+                id: true,
+                name: true,
+                brand: true,
+                imageUrl: true,
+                pricePerDay: true,
+              },
+            },
+          },
+        },
+        payments: true,
+      },
+    });
+
+    return updatedRentalOrder;
+  });
+  return result;
+};
+
 export const rentalService = {
   createRentalOrderIntoDB,
   getMyRentalOrdersFromDB,
   getSingleRentalOrderFromDB,
+  cancelRentalOrderInDB,
 };
