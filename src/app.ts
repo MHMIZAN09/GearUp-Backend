@@ -5,7 +5,7 @@ import express, { Request, Response } from 'express';
 import fs from 'fs';
 import path from 'path';
 import swaggerUI from 'swagger-ui-express';
-import YAML from 'yaml';
+import YAML from 'yamljs';
 import config from './config';
 import { globalErrorHandler } from './middlewares/globalErrorHandler';
 import notFound from './middlewares/notFound';
@@ -25,14 +25,12 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 // app.use(logger);
 
-// Swagger YAML file read
-const swaggerFilePath = path.join(process.cwd(), 'src', 'docs', 'swagger.yml');
-const swaggerFile = fs.readFileSync(swaggerFilePath, 'utf8');
-const swaggerDocument = YAML.parse(swaggerFile);
+const swaggerFilePath = path.join(process.cwd(), 'docs', 'swagger.yaml');
 
-// Swagger route
-app.use('/docs', swaggerUI.serve, swaggerUI.setup(swaggerDocument));
-
+if (fs.existsSync(swaggerFilePath)) {
+  const swaggerDocument = YAML.load(swaggerFilePath);
+  app.use('/api/docs', swaggerUI.serve, swaggerUI.setup(swaggerDocument));
+}
 app.get('/', (req: Request, res: Response) => {
   res.send('Welcome to GearUp Backend Api');
 });

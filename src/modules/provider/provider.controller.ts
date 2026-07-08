@@ -20,14 +20,16 @@ const createGear = catchAsync(async (req: Request, res: Response, next: NextFunc
 
 const getMyGear = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
   const userId = req.user?.id;
+  const query = req.query;
 
-  const gear = await providerService.getMyGear(userId as string);
+  const gear = await providerService.getMyGear(userId as string, query);
 
   sendResponse(res, {
     statusCode: status.OK,
     success: true,
     message: 'My Gear retrieved successfully',
-    data: gear,
+    data: gear.gear,
+    meta: gear.meta,
   });
 });
 
@@ -114,13 +116,15 @@ const updateGearStatus = catchAsync(async (req: Request, res: Response, next: Ne
 
 const getAllRentals = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
   const providerId = req.user?.id;
-  const rentals = await providerService.getAllRentals(providerId as string);
+  const query = req.query;
+  const rentals = await providerService.getAllRentals(providerId as string, query);
 
   sendResponse(res, {
     statusCode: status.OK,
     success: true,
     message: 'All rentals retrieved successfully',
-    data: rentals,
+    data: rentals.rentals,
+    meta: rentals.meta,
   });
 });
 

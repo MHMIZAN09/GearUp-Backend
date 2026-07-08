@@ -3,6 +3,7 @@ import axios from 'axios';
 import { RentalOrder } from '../../../generated/prisma/client';
 import config from '../../config';
 import { prisma } from '../../lib/prisma';
+import { IPaymentQuery } from '../admin/admin.interface';
 
 type PaymentUser = {
   id: string;
@@ -213,16 +214,50 @@ const createPayment = async (customerId: string, rentalOrderId: string) => {
   return paymentData;
 };
 
-const getAllPayments = async (customerId: string) => {
+const getAllPayments = async (customerId: string, query: IPaymentQuery) => {
+  const limit = query.limit ? Number(query.limit) : 10;
+  const page = query.page ? Number(query.page) : 1;
+  const skip = (page - 1) * limit;
+
+  const sortBy = query.sortBy ? query.sortBy : 'createdAt';
+  const sortOrder = query.sortOrder ? query.sortOrder : 'desc';
+
+  const andConditions: any[] = [];
+
+  if (query.searchTerm) {
+    andConditions.push({
+      OR: [
+        { orderId: { contains: query.searchTerm, mode: 'insensitive' } },
+        { transactionId: { contains: query.searchTerm, mode: 'insensitive' } },
+      ],
+    });
+  }
+  if (query.status) {
+    andConditions.push({ status: query.status });
+  }
   const payments = await prisma.payment.findMany({
     where: {
+      AND: andConditions,
+      rentalOrder: {
+        customerId,
+      },
+    },
+    orderBy: {
+      [sortBy]: sortOrder,
+    },
+    skip,
+    take: limit,
+  });
+
+  const total = await prisma.payment.count({
+    where: {
+      AND: andConditions,
       rentalOrder: {
         customerId,
       },
     },
   });
-
-  return payments;
+  return { payments, meta: { total, page, limit, totalPages: Math.ceil(total / limit) } };
 };
 
 const getPaymentById = async (customerId: string, id: string) => {
