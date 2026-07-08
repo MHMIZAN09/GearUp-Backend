@@ -62,6 +62,18 @@ const getAllPayments = catchAsync(async (req: Request, res: Response, next: Next
   });
 });
 
+const createPayment = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  const customerId = req.user?.id;
+  const { rentalOrderId } = req.body;
+  const result = await paymentService.createPayment(customerId as string, rentalOrderId as string);
+
+  res.status(200).json({
+    success: true,
+    message: 'Payment created successfully',
+    data: result,
+  });
+});
+
 const getPaymentById = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
   const customerId = req.user?.id;
   const { id } = req.params;
@@ -78,4 +90,5 @@ export const paymentController = {
   verifyPayment,
   getAllPayments,
   getPaymentById,
+  createPayment,
 };

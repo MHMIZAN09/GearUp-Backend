@@ -12,6 +12,16 @@ type PaymentUser = {
   address: string | null;
 };
 const initiatePayment = async (user: PaymentUser, rentalOrder: RentalOrder) => {
+  const existingPaidPayment = await prisma.payment.findFirst({
+    where: {
+      rentalOrderId: rentalOrder.id,
+      status: 'PAID',
+    },
+  });
+
+  if (existingPaidPayment) {
+    throw new Error('This rental order is already paid');
+  }
   const transactionId = `TRNX-${Date.now()}`;
   const paymentData = {
     store_id: config.ssl_commerz_store_id,
@@ -169,6 +179,40 @@ const validatePayment = async (
   return status;
 };
 
+const createPayment = async (customerId: string, rentalOrderId: string) => {
+  const rentalOrder = await prisma.rentalOrder.findFirst({
+    where: {
+      id: rentalOrderId,
+      customerId,
+    },
+    include: {
+      rentalItems: true,
+
+      customer: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          contactNumber: true,
+          address: true,
+        },
+      },
+    },
+  });
+
+  if (!rentalOrder) {
+    throw new Error('Rental order not found');
+  }
+
+  if (rentalOrder.status !== 'CONFIRMED') {
+    throw new Error('Provider must confirm the rental order before payment');
+  }
+
+  const paymentData = await initiatePayment(rentalOrder.customer, rentalOrder);
+
+  return paymentData;
+};
+
 const getAllPayments = async (customerId: string) => {
   const payments = await prisma.payment.findMany({
     where: {
@@ -201,6 +245,7 @@ const getPaymentById = async (customerId: string, id: string) => {
 export const paymentService = {
   initiatePayment,
   validatePayment,
+  createPayment,
   getAllPayments,
   getPaymentById,
 };

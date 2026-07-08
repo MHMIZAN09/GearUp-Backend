@@ -2,7 +2,6 @@ import { Prisma } from '../../../generated/prisma/client';
 import { GearItemStatus } from '../../../generated/prisma/enums';
 import { RentalOrderWhereInput } from '../../../generated/prisma/models';
 import { prisma } from '../../lib/prisma';
-import { paymentService } from '../payment/payment.service';
 import { ICreateRentalOrderPayload, IRentalQuery } from './rental.interface';
 
 const createRentalOrderIntoDB = async (authCustomer: any, payload: ICreateRentalOrderPayload) => {
@@ -192,19 +191,24 @@ const createRentalOrderIntoDB = async (authCustomer: any, payload: ICreateRental
     });
 
     return {
+      id: rentalOrder.id,
+      startDate: rentalOrder.startDate,
+      endDate: rentalOrder.endDate,
+      notes: rentalOrder.notes,
+      totalAmount: rentalOrder.totalAmount,
+      status: rentalOrder.status,
       customer: dbCustomer,
-      rentalOrder,
+      rentalItems: rentalOrder.rentalItems.map((item) => ({
+        id: item.id,
+        gearItemId: item.gearItemId,
+        quantity: item.quantity,
+        gearItem: item.gearItem,
+      })),
     };
   });
 
-  const paymentData = await paymentService.initiatePayment(
-    createdData.customer,
-    createdData.rentalOrder,
-  );
-
   return {
-    order: createdData.rentalOrder,
-    paymentURL: paymentData.GetWayURL,
+    order: createdData,
   };
 };
 

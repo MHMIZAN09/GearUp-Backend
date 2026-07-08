@@ -526,6 +526,74 @@ const getAnalytics = async (providerId: string) => {
   return providerTransactions;
 };
 
+const confirmRentalStatus = async (providerId: string, rentalId: string) => {
+  const existingRental = await prisma.rentalOrder.findFirst({
+    where: {
+      id: rentalId,
+      rentalItems: {
+        some: {
+          gearItem: {
+            providerId,
+          },
+        },
+      },
+    },
+    include: {
+      rentalItems: {
+        include: {
+          gearItem: true,
+        },
+      },
+    },
+  });
+
+  if (!existingRental) {
+    throw new Error('Rental not found or you do not have permission to confirm this rental');
+  }
+
+  if (existingRental.status !== 'PENDING') {
+    throw new Error('Only pending rentals can be confirmed');
+  }
+
+  // Check all items belong to this provider
+  const invalidItem = existingRental.rentalItems.find(
+    (item) => item.gearItem.providerId !== providerId,
+  );
+
+  if (invalidItem) {
+    throw new Error('You cannot confirm rental items from another provider');
+  }
+
+  // Check stock and availability
+  for (const item of existingRental.rentalItems) {
+    if (item.gearItem.status !== 'AVAILABLE') {
+      throw new Error(`${item.gearItem.name} is not available`);
+    }
+
+    if (item.gearItem.quantityAvailable < item.quantity) {
+      throw new Error(`${item.gearItem.name} does not have enough stock`);
+    }
+  }
+
+  const updatedRental = await prisma.rentalOrder.update({
+    where: {
+      id: rentalId,
+    },
+    data: {
+      status: 'CONFIRMED',
+    },
+    include: {
+      rentalItems: {
+        include: {
+          gearItem: true,
+        },
+      },
+    },
+  });
+
+  return updatedRental;
+};
+
 export const providerService = {
   createGear,
   getMyGear,
@@ -538,4 +606,5 @@ export const providerService = {
   getRentalById,
   updateRentalStatus,
   getAnalytics,
+  confirmRentalStatus,
 };

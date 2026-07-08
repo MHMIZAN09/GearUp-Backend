@@ -167,6 +167,21 @@ const getAnalytics = catchAsync(async (req: Request, res: Response, next: NextFu
   });
 });
 
+const confirmRentalStatus = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  const providerId = req.user?.id;
+  const rentalId = req.params.id;
+  const updatedRental = await providerService.confirmRentalStatus(
+    providerId as string,
+    rentalId as string,
+  );
+
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: 'Rental status confirmed successfully',
+    data: updatedRental,
+  });
+});
 export const providerController = {
   createGear,
   getMyGear,
@@ -178,6 +193,7 @@ export const providerController = {
   getAllRentals,
   getRentalById,
   updateRentalStatus,
+  confirmRentalStatus,
 
   getAnalytics,
 };
