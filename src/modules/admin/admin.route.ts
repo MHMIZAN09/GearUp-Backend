@@ -23,10 +23,7 @@ router.get('/rentals/:id', auth(Role.ADMIN), adminController.getRentalById);
 router.put('/rentals/:id/status', auth(Role.ADMIN), adminController.updateRentalStatus);
 router.delete('/rentals/:id', auth(Role.ADMIN), adminController.deleteRental);
 
-// reviews
-router.get('/reviews', auth(Role.ADMIN), adminController.getAllReviews);
-router.get('/reviews/:id', auth(Role.ADMIN), adminController.getReviewById);
-router.delete('/reviews/:id', auth(Role.ADMIN), adminController.deleteReview);
+
 
 // categories -- done testing
 router.post('/categories', auth(Role.ADMIN), adminController.createCategory);

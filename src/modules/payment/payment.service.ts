@@ -46,14 +46,33 @@ const initiatePayment = async (user: PaymentUser, rentalOrder: RentalOrder) => {
 
   const data = await response.data;
   // console.log('Payment initiation response:', data);
-  await prisma.payment.create({
-    data: {
+  // Check existing payment
+  const existingPayment = await prisma.payment.findFirst({
+    where: {
       rentalOrderId: rentalOrder.id,
-      transactionId: transactionId,
-      amount: rentalOrder.totalAmount,
-      status: 'PENDING',
     },
   });
+
+  if (existingPayment) {
+    await prisma.payment.update({
+      where: {
+        id: existingPayment.id,
+      },
+      data: {
+        transactionId,
+        status: 'PENDING',
+      },
+    });
+  } else {
+    await prisma.payment.create({
+      data: {
+        rentalOrderId: rentalOrder.id,
+        transactionId,
+        amount: rentalOrder.totalAmount,
+        status: 'PENDING',
+      },
+    });
+  }
   const GetWayURL = data.GatewayPageURL;
 
   return { GetWayURL };
@@ -74,7 +93,7 @@ const validatePayment = async (
     },
   );
 
-  console.log('Payment validation response:', response.data);
+  // console.log('Payment validation response:', response.data);
 
   const data = response.data;
   if (data.status === 'VALID') {
@@ -131,7 +150,7 @@ const validatePayment = async (
           id: orderId,
         },
         data: {
-          status: 'CANCELLED',
+          status: 'PENDING',
         },
       });
 
@@ -146,9 +165,33 @@ const validatePayment = async (
       });
     });
   }
+
+  return status;
+};
+
+const getAllPayments = async () => {
+  const result = await prisma.payment.findMany();
+
+  return result;
+};
+
+const getPaymentById = async (id: string) => {
+  const payment = await prisma.payment.findUnique({
+    where: {
+      id,
+    },
+  });
+
+  if (!payment) {
+    throw new Error(`Payment not found: ${id}`);
+  }
+
+  return payment;
 };
 
 export const paymentService = {
   initiatePayment,
   validatePayment,
+  getAllPayments,
+  getPaymentById,
 };

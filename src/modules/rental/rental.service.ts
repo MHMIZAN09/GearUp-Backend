@@ -50,6 +50,37 @@ const createRentalOrderIntoDB = async (authCustomer: any, payload: ICreateRental
     throw new Error('Duplicate gear item is not allowed in the same rental order');
   }
 
+  // Check if customer already has a pending rental order
+  // const existingOrder = await prisma.rentalOrder.findFirst({
+  //   where: {
+  //     customerId: authCustomer.id,
+  //     status: 'PENDING',
+  //   },
+  //   include: {
+  //     customer: {
+  //       select: {
+  //         id: true,
+  //         name: true,
+  //         email: true,
+  //         contactNumber: true,
+  //         address: true,
+  //       },
+  //     },
+  //   },
+  // });
+
+  // if (existingOrder) {
+  //   const paymentData = await paymentService.initiatePayment(
+  //     existingOrder.customer,
+  //     existingOrder as any,
+  //   );
+
+  //   return {
+  //     order: existingOrder,
+  //     paymentURL: paymentData.GetWayURL,
+  //   };
+  // }
+
   const createdData = await prisma.$transaction(async (tx) => {
     const dbCustomer = await tx.user.findUnique({
       where: {
@@ -187,7 +218,7 @@ const getMyRentalOrdersFromDB = async (customerId: string, query: IRentalQuery) 
 
   const andConditions: RentalOrderWhereInput[] = [];
 
-  if(query.searchTerm) {
+  if (query.searchTerm) {
     andConditions.push({
       OR: [
         {
