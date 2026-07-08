@@ -20,4 +20,6 @@ router.get('/rentals', auth(Role.PROVIDER), providerController.getAllRentals);
 router.get('/rentals/:id', auth(Role.PROVIDER), providerController.getRentalById);
 router.patch('/rentals/:id/status', auth(Role.PROVIDER), providerController.updateRentalStatus);
 
+router.get('/analytics', auth(Role.PROVIDER), providerController.getAnalytics);
+
 export const providerRoutes = router;

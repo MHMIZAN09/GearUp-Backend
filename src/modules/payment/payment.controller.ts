@@ -52,8 +52,8 @@ const verifyPayment = catchAsync(async (req, res) => {
 });
 
 const getAllPayments = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-  // const query = req.query;
-  const result = await paymentService.getAllPayments();
+  const customerId = req.user?.id;
+  const result = await paymentService.getAllPayments(customerId as string);
 
   res.status(200).json({
     success: true,
@@ -63,8 +63,9 @@ const getAllPayments = catchAsync(async (req: Request, res: Response, next: Next
 });
 
 const getPaymentById = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  const customerId = req.user?.id;
   const { id } = req.params;
-  const result = await paymentService.getPaymentById(id as string);
+  const result = await paymentService.getPaymentById(customerId as string, id as string);
 
   res.status(200).json({
     success: true,

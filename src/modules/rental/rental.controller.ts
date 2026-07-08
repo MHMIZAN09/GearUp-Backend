@@ -48,18 +48,8 @@ const getSingleRentalOrder = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-const cancelRentalOrder = catchAsync(async (req: Request, res: Response) => {
-  sendResponse(res, {
-    statusCode: status.OK,
-    success: true,
-    message: 'Cancel rental order API not implemented yet',
-    data: null,
-  });
-});
-
 export const RentalController = {
   createRentalOrder,
   getMyRentalOrders,
   getSingleRentalOrder,
-  cancelRentalOrder,
 };

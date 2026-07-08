@@ -1,4 +1,8 @@
-import { GearItemWhereInput, UserWhereInput } from '../../../generated/prisma/models';
+import {
+  GearItemWhereInput,
+  PaymentWhereInput,
+  UserWhereInput,
+} from '../../../generated/prisma/models';
 
 export interface IUserQuery extends UserWhereInput {
   searchTerm?: string;
@@ -19,4 +23,12 @@ export interface IGearQuery extends GearItemWhereInput {
 
   minAvailable?: string;
   maxAvailable?: string;
+}
+
+export interface IPaymentQuery extends PaymentWhereInput {
+  searchTerm?: string;
+  page?: number;
+  limit?: number;
+  sortOrder?: string;
+  sortBy?: string;
 }

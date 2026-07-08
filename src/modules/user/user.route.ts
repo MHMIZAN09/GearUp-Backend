@@ -18,4 +18,5 @@ router.get(
   userController.getMyProfile,
 );
 
+router.get('/analytics', auth(Role.CUSTOMER), userController.getMyAnalytics);
 export const userRoutes = router;

@@ -23,8 +23,6 @@ router.get('/rentals/:id', auth(Role.ADMIN), adminController.getRentalById);
 router.put('/rentals/:id/status', auth(Role.ADMIN), adminController.updateRentalStatus);
 router.delete('/rentals/:id', auth(Role.ADMIN), adminController.deleteRental);
 
-
-
 // categories -- done testing
 router.post('/categories', auth(Role.ADMIN), adminController.createCategory);
 router.put('/categories/:id', auth(Role.ADMIN), adminController.updateCategory);
@@ -32,9 +30,8 @@ router.delete('/categories/:id', auth(Role.ADMIN), adminController.deleteCategor
 
 // payments
 router.get('/payments', auth(Role.ADMIN), adminController.getAllPayments);
-router.get('/payments/:id', auth(Role.ADMIN), adminController.getPaymentById);
 
 // analytics
-router.get('/analytics', auth(Role.ADMIN), adminController.getAnalytics);
+router.get('/analytics', auth(Role.ADMIN, Role.CUSTOMER), adminController.getAnalytics);
 
 export const adminRoutes = router;

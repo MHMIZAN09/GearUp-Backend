@@ -339,6 +339,192 @@ const updateRentalStatus = async (
   });
   return rental;
 };
+const getAnalytics = async (providerId: string) => {
+  const providerTransactions = await prisma.$transaction(async (tx) => {
+    const [
+      totalGears,
+      totalActiveGears,
+      totalInactiveGears,
+      totalRentals,
+      totalPendingRentals,
+      totalCompletedRentals,
+      totalCancelledRentals,
+      totalPayments,
+      totalPendingPayments,
+      totalCompletedPayments,
+      totalFailedPayments,
+      totalCancelledPayments,
+      totalRevenue,
+    ] = await Promise.all([
+      await tx.gearItem.count({
+        where: {
+          providerId: providerId,
+        },
+      }),
+      await tx.gearItem.count({
+        where: {
+          providerId: providerId,
+          status: 'AVAILABLE',
+        },
+      }),
+      await tx.gearItem.count({
+        where: {
+          providerId: providerId,
+          status: 'UNAVAILABLE',
+        },
+      }),
+      await tx.rentalOrder.count({
+        where: {
+          rentalItems: {
+            some: {
+              gearItem: {
+                providerId: providerId,
+              },
+            },
+          },
+        },
+      }),
+      await tx.rentalOrder.count({
+        where: {
+          rentalItems: {
+            some: {
+              gearItem: {
+                providerId: providerId,
+              },
+            },
+          },
+          status: 'PENDING',
+        },
+      }),
+      await tx.rentalOrder.count({
+        where: {
+          rentalItems: {
+            some: {
+              gearItem: {
+                providerId: providerId,
+              },
+            },
+          },
+          status: 'CONFIRMED',
+        },
+      }),
+      await tx.rentalOrder.count({
+        where: {
+          rentalItems: {
+            some: {
+              gearItem: {
+                providerId: providerId,
+              },
+            },
+          },
+          status: 'CANCELLED',
+        },
+      }),
+      await tx.payment.count({
+        where: {
+          rentalOrder: {
+            rentalItems: {
+              some: {
+                gearItem: {
+                  providerId: providerId,
+                },
+              },
+            },
+          },
+        },
+      }),
+      await tx.payment.count({
+        where: {
+          rentalOrder: {
+            rentalItems: {
+              some: {
+                gearItem: {
+                  providerId: providerId,
+                },
+              },
+            },
+          },
+          status: 'PENDING',
+        },
+      }),
+      await tx.payment.count({
+        where: {
+          rentalOrder: {
+            rentalItems: {
+              some: {
+                gearItem: {
+                  providerId: providerId,
+                },
+              },
+            },
+          },
+          status: 'PAID',
+        },
+      }),
+      await tx.payment.count({
+        where: {
+          rentalOrder: {
+            rentalItems: {
+              some: {
+                gearItem: {
+                  providerId: providerId,
+                },
+              },
+            },
+          },
+          status: 'FAILED',
+        },
+      }),
+      await tx.payment.count({
+        where: {
+          rentalOrder: {
+            rentalItems: {
+              some: {
+                gearItem: {
+                  providerId: providerId,
+                },
+              },
+            },
+          },
+          status: 'CANCELLED',
+        },
+      }),
+      await tx.payment.aggregate({
+        _sum: {
+          amount: true,
+        },
+        where: {
+          rentalOrder: {
+            rentalItems: {
+              some: {
+                gearItem: {
+                  providerId: providerId,
+                },
+              },
+            },
+          },
+          status: 'PAID',
+        },
+      }),
+    ]);
+    return {
+      totalGears,
+      totalActiveGears,
+      totalInactiveGears,
+      totalRentals,
+      totalPendingRentals,
+      totalCompletedRentals,
+      totalCancelledRentals,
+      totalPayments,
+      totalPendingPayments,
+      totalCompletedPayments,
+      totalFailedPayments,
+      totalCancelledPayments,
+      totalRevenue: totalRevenue._sum.amount || 0,
+    };
+  });
+  return providerTransactions;
+};
 
 export const providerService = {
   createGear,
@@ -351,4 +537,5 @@ export const providerService = {
   getAllRentals,
   getRentalById,
   updateRentalStatus,
+  getAnalytics,
 };

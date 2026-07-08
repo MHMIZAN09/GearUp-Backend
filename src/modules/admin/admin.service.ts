@@ -7,7 +7,7 @@ import {
 import { prisma } from '../../lib/prisma';
 import { ICreateCategory, IUpdateCategory } from '../category/category.interface';
 import { IRentalQuery } from '../rental/rental.interface';
-import { IGearQuery, IUserQuery } from './admin.interface';
+import { IGearQuery, IPaymentQuery, IUserQuery } from './admin.interface';
 
 const getAllUsers = async (query: IUserQuery) => {
   const limit = query.limit ? Number(query.limit) : 10;
@@ -453,14 +453,121 @@ const deleteCategory = async (categoryId: string) => {
   });
 };
 
-const getAnalytics = async () => {
-  const totalUsers = await prisma.user.count();
-  const totalGears = await prisma.gearItem.count();
+const getAllPayments = async (query: IPaymentQuery) => {
+  const limit = query.limit ? Number(query.limit) : 10;
+  const page = query.page ? Number(query.page) : 1;
+  const skip = (page - 1) * limit;
+
+  const sortBy = query.sortBy ? query.sortBy : 'createdAt';
+  const sortOrder = query.sortOrder ? query.sortOrder : 'desc';
+
+  const andConditions: any[] = [];
+
+  if (query.searchTerm) {
+    andConditions.push({
+      OR: [
+        { orderId: { contains: query.searchTerm, mode: 'insensitive' } },
+        { transactionId: { contains: query.searchTerm, mode: 'insensitive' } },
+      ],
+    });
+  }
+  if (query.status) {
+    andConditions.push({ status: query.status });
+  }
+
+  const payments = await prisma.payment.findMany({
+    where: {
+      AND: andConditions,
+    },
+    take: limit,
+    skip: skip,
+    orderBy: {
+      [sortBy]: sortOrder,
+    },
+  });
+
+  const totalPayments = await prisma.payment.count({
+    where: {
+      AND: andConditions,
+    },
+  });
 
   return {
-    totalUsers,
-    totalGears,
+    payments,
+    meta: {
+      page,
+      limit,
+      total: totalPayments,
+      totalPages: Math.ceil(totalPayments / limit),
+    },
   };
+};
+
+const getAnalytics = async () => {
+  const transactionCount = await prisma.$transaction(async (tx) => {
+    const [
+      totalUsers,
+      totalActiveUsers,
+      totalBlockedUsers,
+      totalGears,
+      totalAvailableGears,
+      totalUnavailableGears,
+      totalMaintenanceGears,
+      totalOutOfStockGears,
+      totalRentals,
+      totalAvailableQuantity,
+      totalPayments,
+      totalPendingPayments,
+      totalCompletedPayments,
+      totalFailedPayments,
+      totalCancelledPayments,
+      totalRevenue,
+    ] = await Promise.all([
+      await tx.user.count(),
+      await tx.user.count({ where: { status: 'ACTIVE' } }),
+      await tx.user.count({ where: { status: 'BLOCKED' } }),
+      await tx.gearItem.count(),
+      await tx.gearItem.count({ where: { status: 'AVAILABLE' } }),
+      await tx.gearItem.count({ where: { status: 'UNAVAILABLE' } }),
+      await tx.gearItem.count({ where: { status: 'MAINTENANCE' } }),
+      await tx.gearItem.count({ where: { status: 'OUT_OF_STOCK' } }),
+      await tx.rentalOrder.count(),
+      await tx.gearItem.aggregate({
+        _sum: {
+          quantityAvailable: true,
+        },
+      }),
+      await tx.payment.count(),
+      await tx.payment.count({ where: { status: 'PENDING' } }),
+      await tx.payment.count({ where: { status: 'PAID' } }),
+      await tx.payment.count({ where: { status: 'FAILED' } }),
+      await tx.payment.count({ where: { status: 'CANCELLED' } }),
+      await tx.payment.aggregate({
+        _sum: {
+          amount: true,
+        },
+      }),
+    ]);
+    return {
+      totalUsers,
+      totalActiveUsers,
+      totalBlockedUsers,
+      totalGears,
+      totalAvailableGears,
+      totalUnavailableGears,
+      totalMaintenanceGears,
+      totalOutOfStockGears,
+      totalRentals,
+      totalAvailableQuantity,
+      totalPayments,
+      totalPendingPayments,
+      totalCompletedPayments,
+      totalFailedPayments,
+      totalCancelledPayments,
+      totalRevenue: totalRevenue._sum.amount || 0,
+    };
+  });
+  return transactionCount;
 };
 
 export const adminService = {
@@ -481,4 +588,5 @@ export const adminService = {
   updateCategory,
   deleteCategory,
   getAnalytics,
+  getAllPayments,
 };

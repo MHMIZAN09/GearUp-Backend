@@ -169,21 +169,30 @@ const validatePayment = async (
   return status;
 };
 
-const getAllPayments = async () => {
-  const result = await prisma.payment.findMany();
+const getAllPayments = async (customerId: string) => {
+  const payments = await prisma.payment.findMany({
+    where: {
+      rentalOrder: {
+        customerId,
+      },
+    },
+  });
 
-  return result;
+  return payments;
 };
 
-const getPaymentById = async (id: string) => {
-  const payment = await prisma.payment.findUnique({
+const getPaymentById = async (customerId: string, id: string) => {
+  const payment = await prisma.payment.findFirst({
     where: {
       id,
+      rentalOrder: {
+        customerId,
+      },
     },
   });
 
   if (!payment) {
-    throw new Error(`Payment not found: ${id}`);
+    throw new Error('Payment not found');
   }
 
   return payment;

@@ -32,7 +32,21 @@ const getMyProfile = catchAsync(async (req: Request, res: Response, next: NextFu
   });
 });
 
+const getMyAnalytics = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  const userId = req.user?.id;
+
+  const result = await userService.getMyAnalytics(userId as string);
+
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: 'Analytics fetched successfully',
+    data: result,
+  });
+});
+
 export const userController = {
   updateMyProfile,
   getMyProfile,
+  getMyAnalytics,
 };

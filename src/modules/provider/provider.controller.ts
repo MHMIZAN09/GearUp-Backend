@@ -137,21 +137,35 @@ const getRentalById = catchAsync(async (req: Request, res: Response, next: NextF
   });
 });
 
-const updateRentalStatus = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
-    const providerId = req.user?.id;
-    const rentalId = req.params.id;
-    const { status } = req.body;
-    const updatedRental = await providerService.updateRentalStatus(providerId as string, rentalId as string, status);
+const updateRentalStatus = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  const providerId = req.user?.id;
+  const rentalId = req.params.id;
+  const { status } = req.body;
+  const updatedRental = await providerService.updateRentalStatus(
+    providerId as string,
+    rentalId as string,
+    status,
+  );
 
-    sendResponse(res, {
-      statusCode: status.OK,
-      success: true,
-      message: 'Rental status updated successfully',
-      data: updatedRental,
-    });
-  }
-);
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: 'Rental status updated successfully',
+    data: updatedRental,
+  });
+});
+
+const getAnalytics = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  const providerId = req.user?.id;
+  const analytics = await providerService.getAnalytics(providerId as string);
+
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: 'Analytics retrieved successfully',
+    data: analytics,
+  });
+});
 
 export const providerController = {
   createGear,
@@ -164,4 +178,6 @@ export const providerController = {
   getAllRentals,
   getRentalById,
   updateRentalStatus,
+
+  getAnalytics,
 };

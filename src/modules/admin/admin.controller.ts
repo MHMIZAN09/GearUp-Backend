@@ -143,7 +143,6 @@ const updateRentalStatus = catchAsync(async (req: Request, res: Response, next: 
 });
 
 const deleteRental = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-  
   const { id } = req.params;
   const result = await adminService.deleteRental(id as string);
 
@@ -207,9 +206,17 @@ const deleteCategory = catchAsync(async (req: Request, res: Response, next: Next
   });
 });
 
-const getAllPayments = catchAsync(async (req: Request, res: Response, next: NextFunction) => {});
+const getAllPayments = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  const query = req.query;
+  const result = await adminService.getAllPayments(query);
 
-const getPaymentById = catchAsync(async (req: Request, res: Response, next: NextFunction) => {});
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: 'All payments retrieved successfully',
+    data: result,
+  });
+});
 
 export const adminController = {
   // users
@@ -237,7 +244,7 @@ export const adminController = {
   deleteCategory,
   // payments
   getAllPayments,
-  getPaymentById,
+
   // analytics
   getAnalytics,
 };
