@@ -1,7 +1,6 @@
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express, { Request, Response } from 'express';
-import status from 'http-status';
 
 import fs from 'fs';
 import path from 'path';
@@ -32,14 +31,10 @@ const swaggerFile = fs.readFileSync(swaggerFilePath, 'utf8');
 const swaggerDocument = YAML.parse(swaggerFile);
 
 // Swagger route
-app.use('/api/docs', swaggerUI.serve, swaggerUI.setup(swaggerDocument));
+app.use('/docs', swaggerUI.serve, swaggerUI.setup(swaggerDocument));
 
 app.get('/', (req: Request, res: Response) => {
-  res.status(status.OK).json({
-    success: true,
-    statusCode: status.OK,
-    message: 'Welcome to the Gearbox API Server!',
-  });
+  res.send('Welcome to GearUp Backend Api');
 });
 
 app.use('/api', indexRoutes);

@@ -1,0 +1,1618 @@
+openapi: 3.0.3
+
+info:
+  title: GearUp API
+  description: Sports & Outdoor Gear Rental Platform - Complete API for managing gear rentals, payments, and reviews
+  version: 1.0.0
+  contact:
+    name: GearUp Support
+    email: support@gearup.com
+
+
+servers:
+  - url: http://localhost:8080/api
+    description: Local Development Server
+  - url: https://gear-up-backend-theta.vercel.app/api
+    description: Production server
+
+tags:
+  - name: Authentication
+    description: User authentication endpoints (login, register, profile)
+  - name: User
+    description: User profile and analytics management
+  - name: Category
+    description: Gear categories management
+  - name: Gear
+    description: Gear listing and details
+  - name: Rental
+    description: Rental order management for customers
+  - name: Payment
+    description: Payment processing and verification
+  - name: Review
+    description: Gear reviews and ratings
+  - name: Admin
+    description: Administrative operations (user, gear, rental, and category management)
+  - name: Provider
+    description: Provider operations for managing their gear inventory and rentals
+
+paths:
+  # Authentication Endpoints
+  /auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: Register a new user
+      description: Create a new user account with name, email and password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  statusCode:
+                    type: integer
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/User'
+        '400':
+          description: Invalid input or user already exists
+        '500':
+          description: Server error
+
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: Login user
+      description: Authenticate user and receive access and refresh tokens
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  statusCode:
+                    type: integer
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      accessToken:
+                        type: string
+                        description: JWT access token
+                      refreshToken:
+                        type: string
+                        description: JWT refresh token
+        '401':
+          description: Invalid credentials
+        '500':
+          description: Server error
+
+  /auth/me:
+    get:
+      tags:
+        - Authentication
+      summary: Get current user profile
+      description: Retrieve the authenticated user's profile information
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  statusCode:
+                    type: integer
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+
+  # User Endpoints
+  /user/my-profile:
+    get:
+      tags:
+        - User
+      summary: Get user profile
+      description: Retrieve authenticated user's profile details
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized
+
+    put:
+      tags:
+        - User
+      summary: Update user profile
+      description: Update authenticated user's profile information
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProfileRequest'
+      responses:
+        '200':
+          description: Profile updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/User'
+        '400':
+          description: Invalid input
+        '401':
+          description: Unauthorized
+
+  /user/analytics:
+    get:
+      tags:
+        - User
+      summary: Get user analytics
+      description: Retrieve user's rental and spending analytics
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Analytics retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+        '401':
+          description: Unauthorized
+
+  # Category Endpoints
+  /category:
+    get:
+      tags:
+        - Category
+      summary: Get all categories
+      description: Retrieve all available gear categories with pagination
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+          description: Page number
+        - name: limit
+          in: query
+          schema:
+            type: integer
+          description: Items per page
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Search term
+      responses:
+        '200':
+          description: Categories retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Category'
+
+  /category/{id}:
+    get:
+      tags:
+        - Category
+      summary: Get category by ID
+      description: Retrieve a specific category with all details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Category ID
+      responses:
+        '200':
+          description: Category retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/Category'
+        '404':
+          description: Category not found
+
+  # Gear Endpoints
+  /gear:
+    get:
+      tags:
+        - Gear
+      summary: Get all gear
+      description: Retrieve all available gear with filters and pagination
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Gear retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Gear'
+
+  /gear/{id}:
+    get:
+      tags:
+        - Gear
+      summary: Get gear by ID
+      description: Retrieve detailed information about a specific gear item
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Gear retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/Gear'
+        '404':
+          description: Gear not found
+
+  # Rental Endpoints
+  /rental:
+    post:
+      tags:
+        - Rental
+      summary: Create rental order
+      description: Create a new rental order for gear items
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRentalRequest'
+      responses:
+        '201':
+          description: Rental order created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/RentalOrder'
+        '400':
+          description: Invalid input
+        '401':
+          description: Unauthorized
+
+    get:
+      tags:
+        - Rental
+      summary: Get my rental orders
+      description: Retrieve all rental orders of the authenticated customer
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Rental orders retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/RentalOrder'
+        '401':
+          description: Unauthorized
+
+  /rental/{id}:
+    get:
+      tags:
+        - Rental
+      summary: Get rental order by ID
+      description: Retrieve details of a specific rental order
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Rental order retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/RentalOrder'
+        '404':
+          description: Rental order not found
+
+  /rental/{id}/cancel:
+    patch:
+      tags:
+        - Rental
+      summary: Cancel rental order
+      description: Cancel an existing rental order
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Rental order cancelled successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/RentalOrder'
+        '400':
+          description: Cannot cancel rental order
+        '404':
+          description: Rental order not found
+
+  # Payment Endpoints
+  /payment/create:
+    post:
+      tags:
+        - Payment
+      summary: Create payment
+      description: Initiate a payment for a rental order
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePaymentRequest'
+      responses:
+        '201':
+          description: Payment created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/Payment'
+        '400':
+          description: Invalid input
+        '401':
+          description: Unauthorized
+  # get all payments
+  /payment:
+    get:
+      tags:
+        - Payment
+      summary: Get all payments
+      description: Retrieve all payments made by the authenticated user
+      security:
+        - bearerAuth: []
+
+      responses:
+        '200':
+          description: Payments retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Payment'
+        '401':
+          description: Unauthorized
+  /payment/{id}:
+    get:
+      tags:
+        - Payment
+      summary: Get payment by ID
+      description: Retrieve details of a specific payment
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Payment retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/Payment'
+        '404':
+          description: Payment not found
+
+  # Review Endpoints
+  /review:
+    post:
+      tags:
+        - Review
+      summary: Create review
+      description: Create a review for a rented gear item
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateReviewRequest'
+      responses:
+        '201':
+          description: Review created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/Review'
+        '400':
+          description: Invalid input
+        '401':
+          description: Unauthorized
+
+    get:
+      tags:
+        - Review
+      summary: Get all reviews
+      description: Retrieve all reviews with pagination
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: gearId
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Reviews retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Review'
+
+  /review/my-reviews:
+    get:
+      tags:
+        - Review
+      summary: Get my reviews
+      description: Retrieve all reviews created by the authenticated user
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Reviews retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Review'
+        '401':
+          description: Unauthorized
+
+  /review/{id}:
+    get:
+      tags:
+        - Review
+      summary: Get review by ID
+      description: Retrieve details of a specific review
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Review retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/Review'
+        '404':
+          description: Review not found
+
+    delete:
+      tags:
+        - Review
+      summary: Delete review
+      description: Delete a review (only by author or admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Review deleted successfully
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Review not found
+
+  # Admin Endpoints
+  /admin/users:
+    get:
+      tags:
+        - Admin
+      summary: Get all users
+      description: Retrieve all users (admin only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: role
+          in: query
+          schema:
+            type: string
+            enum: [ADMIN, CUSTOMER, PROVIDER]
+      responses:
+        '200':
+          description: Users retrieved successfully
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+
+  /admin/users/{id}:
+    get:
+      tags:
+        - Admin
+      summary: Get user by ID
+      description: Retrieve details of a specific user (admin only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User retrieved successfully
+        '404':
+          description: User not found
+
+    delete:
+      tags:
+        - Admin
+      summary: Delete user
+      description: Delete a user account (admin only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User deleted successfully
+        '404':
+          description: User not found
+
+  /admin/users/{id}/status:
+    put:
+      tags:
+        - Admin
+      summary: Update user status
+      description: Update user's status (active/inactive)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [ACTIVE, INACTIVE]
+      responses:
+        '200':
+          description: User status updated successfully
+
+  /admin/gears:
+    get:
+      tags:
+        - Admin
+      summary: Get all gears
+      description: Retrieve all gears for management (admin only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Gears retrieved successfully
+
+  /admin/gears/{id}:
+    get:
+      tags:
+        - Admin
+      summary: Get gear by ID
+      description: Retrieve details of a specific gear (admin only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Gear retrieved successfully
+        '404':
+          description: Gear not found
+
+    delete:
+      tags:
+        - Admin
+      summary: Delete gear
+      description: Delete a gear item (admin only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Gear deleted successfully
+
+  /admin/gears/{id}/status:
+    put:
+      tags:
+        - Admin
+      summary: Update gear status
+      description: Update gear's availability status (admin only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+      responses:
+        '200':
+          description: Gear status updated successfully
+
+  /admin/rentals:
+    get:
+      tags:
+        - Admin
+      summary: Get all rentals
+      description: Retrieve all rental orders for management (admin only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Rentals retrieved successfully
+
+  /admin/rentals/{id}:
+    get:
+      tags:
+        - Admin
+      summary: Get rental by ID
+      description: Retrieve details of a specific rental (admin only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Rental retrieved successfully
+
+    delete:
+      tags:
+        - Admin
+      summary: Delete rental
+      description: Delete a rental order (admin only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Rental deleted successfully
+
+  /admin/rentals/{id}/status:
+    put:
+      tags:
+        - Admin
+      summary: Update rental status
+      description: Update rental order status (admin only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+      responses:
+        '200':
+          description: Rental status updated successfully
+
+  /admin/categories:
+    post:
+      tags:
+        - Admin
+      summary: Create category
+      description: Create a new gear category (admin only)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCategoryRequest'
+      responses:
+        '201':
+          description: Category created successfully
+
+  /admin/categories/{id}:
+    put:
+      tags:
+        - Admin
+      summary: Update category
+      description: Update an existing gear category (admin only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCategoryRequest'
+      responses:
+        '200':
+          description: Category updated successfully
+
+    delete:
+      tags:
+        - Admin
+      summary: Delete category
+      description: Delete a gear category (admin only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Category deleted successfully
+
+  /admin/payments:
+    get:
+      tags:
+        - Admin
+      summary: Get all payments
+      description: Retrieve all payments for monitoring (admin only)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Payments retrieved successfully
+
+  /admin/analytics:
+    get:
+      tags:
+        - Admin
+      summary: Get admin analytics
+      description: Retrieve system analytics and statistics (admin only)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Analytics retrieved successfully
+
+  # Provider Endpoints
+  /provider/gears:
+    post:
+      tags:
+        - Provider
+      summary: Create gear
+      description: Add a new gear item to inventory (provider only)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateGearRequest'
+      responses:
+        '201':
+          description: Gear created successfully
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+
+    get:
+      tags:
+        - Provider
+      summary: Get my gears
+      description: Retrieve all gear items of the authenticated provider
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Gears retrieved successfully
+
+  /provider/gears/{id}:
+    get:
+      tags:
+        - Provider
+      summary: Get my gear by ID
+      description: Retrieve details of a specific gear item
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Gear retrieved successfully
+
+    put:
+      tags:
+        - Provider
+      summary: Update gear
+      description: Update gear details
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateGearRequest'
+      responses:
+        '200':
+          description: Gear updated successfully
+
+    delete:
+      tags:
+        - Provider
+      summary: Delete gear
+      description: Remove a gear item from inventory
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Gear deleted successfully
+
+  /provider/gears/{id}/stock:
+    patch:
+      tags:
+        - Provider
+      summary: Update gear stock
+      description: Update the stock quantity of a gear item
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quantity:
+                  type: integer
+      responses:
+        '200':
+          description: Stock updated successfully
+
+  /provider/gears/{id}/status:
+    patch:
+      tags:
+        - Provider
+      summary: Update gear status
+      description: Update the status of a gear item
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+      responses:
+        '200':
+          description: Status updated successfully
+
+  /provider/rentals:
+    get:
+      tags:
+        - Provider
+      summary: Get all rental orders
+      description: Retrieve all rental orders for provider's gear items
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Rentals retrieved successfully
+
+  /provider/rentals/{id}:
+    get:
+      tags:
+        - Provider
+      summary: Get rental by ID
+      description: Retrieve details of a specific rental order
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Rental retrieved successfully
+
+  /provider/rentals/{id}/status:
+    patch:
+      tags:
+        - Provider
+      summary: Update rental status
+      description: Update the status of a rental order
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+      responses:
+        '200':
+          description: Rental status updated successfully
+
+  /provider/rentals/{id}/confirm:
+    patch:
+      tags:
+        - Provider
+      summary: Confirm rental order
+      description: Confirm a pending rental order
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Rental confirmed successfully
+
+  /provider/analytics:
+    get:
+      tags:
+        - Provider
+      summary: Get provider analytics
+      description: Retrieve provider's analytics and statistics
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Analytics retrieved successfully
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT access token
+
+    cookie:
+      type: apiKey
+      in: cookie
+      name: session_id
+      description: Session cookie for authentication
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          description: User ID
+        name:
+          type: string
+          description: User full name
+        email:
+          type: string
+          format: email
+          description: User email address
+        role:
+          type: string
+          enum: [ CUSTOMER, PROVIDER]
+          description: User role
+        status:
+          type: string
+          enum: [ACTIVE, INACTIVE]
+          description: User account status
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    Category:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+          description: Category name
+        description:
+          type: string
+          description: Category description
+        image:
+          type: string
+          description: Category image URL
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    Gear:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+          description: Gear name
+        description:
+          type: string
+        category:
+          $ref: '#/components/schemas/Category'
+        price:
+          type: number
+          format: float
+          description: Rental price per day
+        stock:
+          type: integer
+          description: Available stock quantity
+        image:
+          type: array
+          items:
+            type: string
+          description: Gear images
+        ratings:
+          type: number
+          format: float
+          description: Average rating
+        status:
+          type: string
+          enum: [AVAILABLE, UNAVAILABLE]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    RentalOrder:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        rentalItems:
+          type: array
+          items:
+            type: object
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        status:
+          type: string
+          enum: [PENDING, ACTIVE, COMPLETED, CANCELLED]
+        totalPrice:
+          type: number
+          format: float
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    Payment:
+      type: object
+      properties:
+        id:
+          type: string
+        rentalOrderId:
+          type: string
+        transactionId:
+          type: string
+        amount:
+          type: number
+          format: float
+        status:
+          type: string
+          enum: [PENDING, SUCCESS, FAILED]
+        method:
+          type: string
+          description: Payment method
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    Review:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        gearId:
+          type: string
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        comment:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    RegisterRequest:
+      type: object
+      required:
+        - name
+        - email
+        - password
+        - role
+      properties:
+        name:
+          type: string
+          description: User full name
+        email:
+          type: string
+          format: email
+          description: User email address
+        password:
+          type: string
+          format: password
+          description: User password (minimum 6 characters)
+        role:
+          type: string
+          enum: [CUSTOMER, PROVIDER]
+          description: User role
+
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          description: User email address
+        password:
+          type: string
+          format: password
+          description: User password
+
+    UpdateProfileRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        address:
+          type: string
+
+    CreateRentalRequest:
+      type: object
+      required:
+
+        - startDate
+        - endDate
+        - notes
+        - rentalItems
+      properties:
+
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        notes:
+          type: string
+        rentalItems:
+          type: array
+          items:
+            type: object
+            properties:
+              gearId:
+                type: string
+              quantity:
+                type: integer
+    CreatePaymentRequest:
+      type: object
+      required:
+        - rentalOrderId
+      properties:
+        rentalOrderId:
+          type: string
+
+
+    CreateReviewRequest:
+      type: object
+      required:
+        - gearId
+        - rating
+      properties:
+        gearId:
+          type: string
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        comment:
+          type: string
+
+    CreateGearRequest:
+      type: object
+      required:
+        - name
+        - categoryId
+        - price
+        - stock
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        categoryId:
+          type: string
+        price:
+          type: number
+          format: float
+        stock:
+          type: integer
+        brand:
+          type: string
+        image:
+          type: string
+
+    CreateCategoryRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        image:
+          type: string
