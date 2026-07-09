@@ -123,7 +123,7 @@ Create a `.env` file in the root directory:
 ```env
 # Server Configuration
 PORT=8080
-NODE_ENV=development
+
 APP_URL=http://localhost:3000
 
 # Database Configuration
@@ -132,10 +132,10 @@ DATABASE_URL=postgresql://username:password@localhost:5432/gearup_db
 BCRYPT_SALT_ROUNDS=10
 
 # JWT Configuration
-JWT_SECRET=your_jwt_secret_key_here
-JWT_EXPIRES_IN=1d
-JWT_REFRESH_SECRET=your_refresh_secret_key_here
-JWT_REFRESH_EXPIRES_IN=7d
+JWT_ACCESS_TOKEN_SECRET=your_access_token_secret
+JWT_REFRESH_TOKEN_SECRET=your_refresh_token_secret
+JWT_ACCESS_TOKEN_EXPIRATION=1d
+JWT_REFRESH_TOKEN_EXPIRATION=7d
 
 # Payment Gateway (SSLCommerz)
 SSLCOMMERZ_STORE_ID=your_store_id
