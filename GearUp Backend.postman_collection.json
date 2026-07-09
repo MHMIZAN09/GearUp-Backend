@@ -1,0 +1,1250 @@
+{
+  "info": {
+    "_postman_id": "15525df6-15d9-4072-9a12-be71cbdbad8a",
+    "name": "GearUp Backend",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "35157838"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "register",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"PROVIDER\",\n    \"email\": \"provider@example.com\",\n    \"password\": \"password@123\",\n    \"role\": \"PROVIDER\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{prodURL}}/auth/register",
+              "host": [
+                "{{prodURL}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "login",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"admin@example.com\",\n    \"password\": \"admin123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "me",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"muzrat1@gmail.com\",\n    \"password\": \"password1234\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{prodURL}}/auth/me",
+              "host": [
+                "{{prodURL}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "user",
+      "item": [
+        {
+          "name": "get my profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/user/analytics",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "analytics"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "update profile",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Rahim Updated\",\n  \"phone\": \"01722222222\",\n  \"address\": \"Dhaka, Bangladesh\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/user/my-profile",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "user",
+                "my-profile"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "gear",
+      "item": [
+        {
+          "name": "get all gears",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/gear?sortBy=pricePerDay&sortOrder=asc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "gear"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "disabled": true
+                },
+                {
+                  "key": "status",
+                  "value": "AVAILABLE",
+                  "disabled": true
+                },
+                {
+                  "key": "searchTerm",
+                  "value": "Adidas",
+                  "disabled": true
+                },
+                {
+                  "key": "brand",
+                  "value": "Giant",
+                  "disabled": true
+                },
+                {
+                  "key": "minPrice",
+                  "value": "100",
+                  "disabled": true
+                },
+                {
+                  "key": "maxPrice",
+                  "value": "500",
+                  "disabled": true
+                },
+                {
+                  "key": "sortBy",
+                  "value": "pricePerDay"
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "asc"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get gear by id public",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"categoryId\": \"8e657a6f-1a3d-4d16-ba80-bcc240654a74\",\n  \"name\": \"Adidas Football\",\n  \"description\": \"Official size 5 football.\",\n  \"brand\": \"Adidas\",\n  \"pricePerDay\": 100,\n  \"quantityTotal\": 20,\n  \"imageUrl\": \"https://images.unsplash.com/photo-1517466787929-bc90951d0974\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/gear/bc98aa37-c86c-49c0-b744-362eac413eeb",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "gear",
+                "bc98aa37-c86c-49c0-b744-362eac413eeb"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "category",
+      "item": [
+        {
+          "name": "get category by id",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"new category\",\n    \"description\": \"yugcfe8a7of egtu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/category/55d45697-3dff-4565-b57b-81f1b5a7e65d",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "category",
+                "55d45697-3dff-4565-b57b-81f1b5a7e65d"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get all category",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"new category\",\n    \"description\": \"yugcfe8a7of egtu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{prodURL}}/category?searchTerm=camp&page=1&limit=10&sortBy=createdAt&sortOrder=desc",
+              "host": [
+                "{{prodURL}}"
+              ],
+              "path": [
+                "category"
+              ],
+              "query": [
+                {
+                  "key": "searchTerm",
+                  "value": "camp"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "createdAt"
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "desc"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "rentals",
+      "item": [
+        {
+          "name": "create Rental Order",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"startDate\": \"2026-07-10\",\n    \"endDate\": \"2026-07-13\",\n    \"notes\": \"I will pick up the gear in the morning\",\n    \"rentalItems\": [\n        {\n            \"gearItemId\": \"c9ee5944-a7e8-494e-a36b-7a2665ca8d32\",\n            \"quantity\": 6\n        }\n    ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/rental",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rental"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "orders cancel",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/rental/288a8705-6453-4597-ba95-ebccdde0db25/cancel",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rental",
+                "288a8705-6453-4597-ba95-ebccdde0db25",
+                "cancel"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get My Rental Orders",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/rental",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rental"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get Single Rental Order",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/rental/791735f1-1f94-471c-a46f-e13e4bebddf8",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rental",
+                "791735f1-1f94-471c-a46f-e13e4bebddf8"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "admin",
+      "item": [
+        {
+          "name": "Gears",
+          "item": [
+            {
+              "name": "all gears",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/gears",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "gears"
+                  ],
+                  "query": [
+                    {
+                      "key": "searchTerm",
+                      "value": "adidas",
+                      "disabled": true
+                    },
+                    {
+                      "key": "minPrice",
+                      "value": "1000",
+                      "disabled": true
+                    },
+                    {
+                      "key": "maxPrice",
+                      "value": "50",
+                      "type": "text",
+                      "disabled": true
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "all gears by id",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/gears/4a474c4d-7b03-4a42-94a6-903c1964f811",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "gears",
+                    "4a474c4d-7b03-4a42-94a6-903c1964f811"
+                  ],
+                  "query": [
+                    {
+                      "key": "searchTerm",
+                      "value": "adidas",
+                      "disabled": true
+                    },
+                    {
+                      "key": "minPrice",
+                      "value": "1000",
+                      "disabled": true
+                    },
+                    {
+                      "key": "maxPrice",
+                      "value": "50",
+                      "type": "text",
+                      "disabled": true
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "users",
+          "item": [
+            {
+              "name": "get users by id Copy",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"status\":\"BLOCKED\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/admin/users/5b0d0022-542d-426b-a83c-72eea2f5bbac",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "users",
+                    "5b0d0022-542d-426b-a83c-72eea2f5bbac"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "get users by id",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"status\":\"BLOCKED\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/admin/users/2bd6daab-3acb-45fb-8756-1544af7f9d7b",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "users",
+                    "2bd6daab-3acb-45fb-8756-1544af7f9d7b"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "UPDATE user status",
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"status\":\"ACTIVE\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/admin/users/ef93935b-2323-42aa-be19-a2172ca1ea92/status",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "users",
+                    "ef93935b-2323-42aa-be19-a2172ca1ea92",
+                    "status"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "all users",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/users?searchTerm=test",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "users"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1",
+                      "disabled": true
+                    },
+                    {
+                      "key": "limit",
+                      "value": "2",
+                      "disabled": true
+                    },
+                    {
+                      "key": "searchTerm",
+                      "value": "test"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "categories",
+          "item": [
+            {
+              "name": "delete category",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"name\": \"new category update\",\n    \"description\": \"yugcfe8a7of egtu\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/category/55d45697-3dff-4565-b57b-81f1b5a7e65d",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "category",
+                    "55d45697-3dff-4565-b57b-81f1b5a7e65d"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "update category",
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"name\": \"new category update\",\n    \"description\": \"yugcfe8a7of egtu\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/category/55d45697-3dff-4565-b57b-81f1b5a7e65d",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "category",
+                    "55d45697-3dff-4565-b57b-81f1b5a7e65d"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "category",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"name\": \"Water Sports3\",\n    \"description\": \"Kayaks, life jackets, surfboards and water sports equipment\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/admin/categories",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "categories"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "rentals",
+          "item": [
+            {
+              "name": "New Request",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/rentals/791735f1-1f94-471c-a46f-e13e4bebddf8",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "rentals",
+                    "791735f1-1f94-471c-a46f-e13e4bebddf8"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "payments",
+          "item": [
+            {
+              "name": "get all payments only admin",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"gearItemId\": \"c9ee5944-a7e8-494e-a36b-7a2665ca8d32\",\n    \"rentalOrderId\": \"4f987da1-45a2-43f4-aecb-75e8813c1347\",\n    \"rating\": 4,\n    \"comment\": \"Excellent football.\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/admin/payments",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "payments"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "getAnalytics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/analytics",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "analytics"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "review",
+      "item": [
+        {
+          "name": "create review",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"gearItemId\": \"c9ee5944-a7e8-494e-a36b-7a2665ca8d32\",\n    \"rentalOrderId\": \"4f987da1-45a2-43f4-aecb-75e8813c1347\",\n    \"rating\": 4,\n    \"comment\": \"Excellent football.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/review",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "review"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get all reviews",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"gearItemId\": \"c9ee5944-a7e8-494e-a36b-7a2665ca8d32\",\n    \"rentalOrderId\": \"4f987da1-45a2-43f4-aecb-75e8813c1347\",\n    \"rating\": 4,\n    \"comment\": \"Excellent football.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/review",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "review"
+              ],
+              "query": [
+                {
+                  "key": "searchTerm",
+                  "value": "A",
+                  "type": "text",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get own reviews",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"gearItemId\": \"c9ee5944-a7e8-494e-a36b-7a2665ca8d32\",\n    \"rentalOrderId\": \"4f987da1-45a2-43f4-aecb-75e8813c1347\",\n    \"rating\": 4,\n    \"comment\": \"Excellent football.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/review/my-reviews",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "review",
+                "my-reviews"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get own single reviews",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"gearItemId\": \"c9ee5944-a7e8-494e-a36b-7a2665ca8d32\",\n    \"rentalOrderId\": \"4f987da1-45a2-43f4-aecb-75e8813c1347\",\n    \"rating\": 4,\n    \"comment\": \"Excellent football.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/review/5bf994dc-16ae-4dec-8865-74bc9126d826",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "review",
+                "5bf994dc-16ae-4dec-8865-74bc9126d826"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "delete own reviews or admin deleted",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"gearItemId\": \"c9ee5944-a7e8-494e-a36b-7a2665ca8d32\",\n    \"rentalOrderId\": \"4f987da1-45a2-43f4-aecb-75e8813c1347\",\n    \"rating\": 4,\n    \"comment\": \"Excellent football.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/review/5bf994dc-16ae-4dec-8865-74bc9126d826",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "review",
+                "5bf994dc-16ae-4dec-8865-74bc9126d826"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "providers",
+      "item": [
+        {
+          "name": "gears",
+          "item": [
+            {
+              "name": "create gears",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"categoryId\": \"3c1a29ee-9754-4ca0-9274-ba24354583e3\",\n    \"name\": \"Hybrid Road Bicycle updated\",\n    \"description\": \"Lightweight bicycle suitable for city rides and long-distance cycling.\",\n    \"brand\": \"Giant\",\n    \"pricePerDay\": 999,\n    \"quantityTotal\": 20,\n    \"imageUrl\": \"https://images.unsplash.com/photo-1517466787929-bc90951d0974\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/provider/gears",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "provider",
+                    "gears"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "own created gears",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/provider/gears",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "provider",
+                    "gears"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "own created gears by id",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/provider/gears/c9ee5944-a7e8-494e-a36b-7a2665ca8d32",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "provider",
+                    "gears",
+                    "c9ee5944-a7e8-494e-a36b-7a2665ca8d32"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "own created gears updated",
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Adidas Football updated\",\n  \"description\": \"Official size 5 football.\",\n  \"brand\": \"Adidas\",\n  \"pricePerDay\": 650,\n  \"quantityTotal\": 10,\n  \"imageUrl\": \"https://images.unsplash.com/photo-1517466787929-bc90951d0974\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/provider/gears/c9ee5944-a7e8-494e-a36b-7a2665ca8d32",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "provider",
+                    "gears",
+                    "c9ee5944-a7e8-494e-a36b-7a2665ca8d32"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "own created gears  update stock",
+              "request": {
+                "method": "PATCH",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"quantity\": 999\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/provider/gears/c9ee5944-a7e8-494e-a36b-7a2665ca8d32/stock",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "provider",
+                    "gears",
+                    "c9ee5944-a7e8-494e-a36b-7a2665ca8d32",
+                    "stock"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "own created gears  update status",
+              "request": {
+                "method": "PATCH",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"status\": \"MAINTENANCE\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/provider/gears/c9ee5944-a7e8-494e-a36b-7a2665ca8d32/status",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "provider",
+                    "gears",
+                    "c9ee5944-a7e8-494e-a36b-7a2665ca8d32",
+                    "status"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "own created gears  deleted",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"quantity\": 999\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/provider/gears/c9ee5944-a7e8-494e-a36b-7a2665ca8d32",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "provider",
+                    "gears",
+                    "c9ee5944-a7e8-494e-a36b-7a2665ca8d32"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "rentals",
+          "item": [
+            {
+              "name": "New Request",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/provider/rentals",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "provider",
+                    "rentals"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "analytics for provider",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"gearItemId\": \"c9ee5944-a7e8-494e-a36b-7a2665ca8d32\",\n    \"rentalOrderId\": \"4f987da1-45a2-43f4-aecb-75e8813c1347\",\n    \"rating\": 4,\n    \"comment\": \"Excellent football.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/provider/analytics",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "provider",
+                "analytics"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "payments",
+      "item": [
+        {
+          "name": "get all payments",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"gearItemId\": \"c9ee5944-a7e8-494e-a36b-7a2665ca8d32\",\n    \"rentalOrderId\": \"4f987da1-45a2-43f4-aecb-75e8813c1347\",\n    \"rating\": 4,\n    \"comment\": \"Excellent football.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/payment",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payment"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get single payment own",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"gearItemId\": \"c9ee5944-a7e8-494e-a36b-7a2665ca8d32\",\n    \"rentalOrderId\": \"4f987da1-45a2-43f4-aecb-75e8813c1347\",\n    \"rating\": 4,\n    \"comment\": \"Excellent football.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/payment",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payment"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "New Request",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rentalOrderId\": \"d1e2c713-b1a9-493c-b17f-445a094ba72f\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/payment/create",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payment",
+                "create"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

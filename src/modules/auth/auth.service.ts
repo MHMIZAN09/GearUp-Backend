@@ -1,3 +1,4 @@
+import bcrypt from 'bcryptjs';
 import { SignOptions } from 'jsonwebtoken';
 import { Role, UserStatus } from '../../../generated/prisma/enums';
 import config from '../../config';
@@ -49,7 +50,8 @@ const loginUserFromDB = async (payload: IAuth) => {
     throw new Error('User is blocked, please contact support');
   }
 
-  const isMatchPassword = await hashUtil.comparePassword(password, user.password);
+  // console.log(user.password, password);
+  const isMatchPassword = await bcrypt.compare(password, user.password);
   if (!isMatchPassword) {
     throw new Error('Invalid credentials');
   }
