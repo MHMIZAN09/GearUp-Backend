@@ -1,5 +1,6 @@
+import bcrypt from 'bcryptjs';
 import { SignOptions } from 'jsonwebtoken';
-import { UserStatus } from '../../../generated/prisma/enums';
+import { Role, UserStatus } from '../../../generated/prisma/enums';
 import config from '../../config';
 import { prisma } from '../../lib/prisma';
 import { hashUtil } from '../../utils/hash';
@@ -8,6 +9,9 @@ import { IAuth } from './auth.interface';
 
 const registerUserFromDB = async (payload: IAuth) => {
   const { name, email, password, role } = payload;
+  if (role === Role.ADMIN) {
+    throw new Error('You cannot register as an admin');
+  }
   const isUserExist = await prisma.user.findUnique({
     where: {
       email,
@@ -46,7 +50,8 @@ const loginUserFromDB = async (payload: IAuth) => {
     throw new Error('User is blocked, please contact support');
   }
 
-  const isMatchPassword = await hashUtil.comparePassword(password, user.password);
+  // console.log(user.password, password);
+  const isMatchPassword = await bcrypt.compare(password, user.password);
   if (!isMatchPassword) {
     throw new Error('Invalid credentials');
   }

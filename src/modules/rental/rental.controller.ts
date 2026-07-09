@@ -27,7 +27,8 @@ const getMyRentalOrders = catchAsync(async (req: Request, res: Response, next: N
     statusCode: status.OK,
     success: true,
     message: 'Rental orders retrieved successfully',
-    data: result,
+    data: result.data,
+    meta: result.meta,
   });
 });
 

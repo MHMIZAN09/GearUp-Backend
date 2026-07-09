@@ -14,6 +14,10 @@ const config = {
   jwt_access_expiration: process.env.JWT_ACCESS_TOKEN_EXPIRATION!,
   jwt_refresh_expiration: process.env.JWT_REFRESH_TOKEN_EXPIRATION!,
 
+  supper_admin_email: process.env.SUPPER_ADMIN_EMAIL!,
+  supper_admin_password: process.env.SUPPER_ADMIN_PASSWORD!,
+  supper_admin_name: process.env.SUPPER_ADMIN_NAME!,
+
   ssl_commerz_store_id: process.env.SSLCOMMERZ_STORE_ID!,
   ssl_commerz_store_pass: process.env.SSLCOMMERZ_STORE_PASSWORD!,
 };

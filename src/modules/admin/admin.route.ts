@@ -32,6 +32,6 @@ router.delete('/categories/:id', auth(Role.ADMIN), adminController.deleteCategor
 router.get('/payments', auth(Role.ADMIN), adminController.getAllPayments);
 
 // analytics
-router.get('/analytics', auth(Role.ADMIN, Role.CUSTOMER), adminController.getAnalytics);
+router.get('/analytics', auth(Role.ADMIN), adminController.getAnalytics);
 
 export const adminRoutes = router;

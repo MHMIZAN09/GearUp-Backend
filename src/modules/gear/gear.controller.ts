@@ -5,7 +5,8 @@ import { sendResponse } from '../../utils/sendResponse';
 import { gearService } from './gear.service';
 
 const getAllGear = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-  const gear = await gearService.getAllGear();
+  const query = req.query;
+  const gear = await gearService.getAllGear(query);
 
   sendResponse(res, {
     statusCode: status.OK,
