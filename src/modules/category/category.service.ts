@@ -1,7 +1,6 @@
 import { CategoryWhereInput } from '../../../generated/prisma/models';
 import { prisma } from '../../lib/prisma';
-import { ICategoryQuery, ICreateCategory, IUpdateCategory } from './category.interface';
-
+import { ICategoryQuery } from './category.interface';
 
 const getAllCategories = async (query: ICategoryQuery) => {
   const limit = query.limit ? Number(query.limit) : 10;
@@ -26,6 +25,13 @@ const getAllCategories = async (query: ICategoryQuery) => {
     where: {
       AND: andConditions,
     },
+    include: {
+      _count: {
+        select: {
+          gearItems: true,
+        },
+      },
+    },
     take: limit,
     skip: skip,
     orderBy: {
@@ -48,22 +54,54 @@ const getAllCategories = async (query: ICategoryQuery) => {
   };
 };
 
+// const getCategoryById = async (categoryId: string) => {
+//   const category = await prisma.category.findUnique({
+//     where: {
+//       id: categoryId,
+//     },
+//   });
+//   if (!category) {
+//     throw new Error('Category not found');
+//   }
+//   return category;
+// };
+
 const getCategoryById = async (categoryId: string) => {
   const category = await prisma.category.findUnique({
     where: {
       id: categoryId,
     },
+    include: {
+      _count: {
+        select: {
+          gearItems: true,
+        },
+      },
+      gearItems: {
+        include: {
+          provider: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+      },
+    },
   });
+
   if (!category) {
     throw new Error('Category not found');
   }
-  return category;
+
+  const providerCount = new Set(category.gearItems.map((item) => item.providerId)).size;
+
+  return {
+    ...category,
+    providerCount,
+  };
 };
-
-
-
 export const categoryService = {
-
   getAllCategories,
   getCategoryById,
 };

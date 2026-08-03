@@ -24,9 +24,9 @@ router.put('/rentals/:id/status', auth(Role.ADMIN), adminController.updateRental
 router.delete('/rentals/:id', auth(Role.ADMIN), adminController.deleteRental);
 
 // categories -- done testing
-router.post('/categories', auth(Role.ADMIN), adminController.createCategory);
-router.put('/categories/:id', auth(Role.ADMIN), adminController.updateCategory);
-router.delete('/categories/:id', auth(Role.ADMIN), adminController.deleteCategory);
+router.post('/category', auth(Role.ADMIN), adminController.createCategory);
+router.put('/category/:id', auth(Role.ADMIN), adminController.updateCategory);
+router.delete('/category/:id', auth(Role.ADMIN), adminController.deleteCategory);
 
 // payments
 router.get('/payments', auth(Role.ADMIN), adminController.getAllPayments);

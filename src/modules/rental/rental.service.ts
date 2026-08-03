@@ -253,7 +253,15 @@ const getMyRentalOrdersFromDB = async (customerId: string, query: IRentalQuery) 
           },
         },
       },
-      payments: true,
+      payments: {
+        select: {
+          id: true,
+          transactionId: true,
+          amount: true,
+          status: true,
+          paidAt: true,
+        },
+      },
     },
     orderBy: {
       [sortBy]: sortOrder,
@@ -261,12 +269,22 @@ const getMyRentalOrdersFromDB = async (customerId: string, query: IRentalQuery) 
     skip,
     take: limit,
   });
+
   const total = await prisma.rentalOrder.count({
     where: {
+      customerId,
       AND: andConditions,
     },
   });
-  return { data: rentalOrders, meta: { total, limit, page } };
+  return {
+    data: rentalOrders,
+    meta: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
 };
 
 const getSingleRentalOrderFromDB = async (customerId: string, rentalOrderId: string) => {

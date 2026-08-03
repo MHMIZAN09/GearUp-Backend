@@ -6,7 +6,7 @@ import { userService } from './user.service';
 
 const updateMyProfile = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
   const userId = req.user?.id;
-  console.log(userId);
+  // console.log(userId);
   const payload = req.body;
 
   const result = await userService.updateMyProfile(userId as string, payload);

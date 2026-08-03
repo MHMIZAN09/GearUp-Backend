@@ -20,6 +20,7 @@ const getAllCategories = catchAsync(async (req: Request, res: Response, next: Ne
 const getCategoryById = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
   const categoryId = req.params.id;
   const category = await categoryService.getCategoryById(categoryId as string);
+  console.log(category);
 
   sendResponse(res, {
     success: true,

@@ -19,35 +19,13 @@ const verifyPayment = catchAsync(async (req, res) => {
   );
   // console.log('Payment verification response:', response);
   if (response === 'success') {
-    res.status(200).json({
-      success: true,
-      message: 'Payment verified successfully',
-      data: {
-        orderId,
-        transactionId,
-        status,
-      },
-    });
+    return res.redirect(
+      `http://localhost:3000/payments/success?orderId=${orderId}&transactionId=${transactionId}`,
+    );
   } else if (response === 'fail') {
-    res.status(400).json({
-      success: false,
-      message: 'Payment verification failed',
-      data: {
-        orderId,
-        transactionId,
-        status,
-      },
-    });
-  } else if (response === 'cancel') {
-    res.status(400).json({
-      success: false,
-      message: 'Invalid payment status',
-      data: {
-        orderId,
-        transactionId,
-        status,
-      },
-    });
+    return res.redirect(`http://localhost:3000/payments/fail?orderId=${orderId}`);
+  } else {
+    return res.redirect(`http://localhost:3000/payments/cancel?orderId=${orderId}`);
   }
 });
 

@@ -81,6 +81,7 @@ const getUserById = async (userId: string) => {
       id: true,
       name: true,
       email: true,
+      role: true,
       status: true,
       contactNumber: true,
       profilePhoto: true,
@@ -337,6 +338,7 @@ const getAllRentals = async (query: IRentalQuery) => {
       },
       payments: true,
     },
+
     take: limit,
     skip: skip,
     orderBy: {

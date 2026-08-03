@@ -46,11 +46,13 @@ const getAllGear = async (query: IGearQuery) => {
     });
   }
 
-  if (query.categoryId) {
-    andConditions.push({
-      categoryId: query.categoryId,
-    });
-  }
+  // if (query.category?.name) {
+  //   andConditions.push({
+  //     category: {
+  //       name: query.category.name,
+  //     },
+  //   });
+  // }
 
   if (query.status) {
     andConditions.push({
@@ -86,9 +88,12 @@ const getAllGear = async (query: IGearQuery) => {
   });
   return {
     gear,
-    totalCount,
-    currentPage: page,
-    totalPages: Math.ceil(totalCount / limit),
+    meta: {
+      page,
+      limit,
+      total: totalCount,
+      totalPages: Math.ceil(totalCount / limit),
+    },
   };
 };
 
@@ -106,6 +111,22 @@ const getGearById = async (gearId: string) => {
           email: true,
           contactNumber: true,
           address: true,
+        },
+      },
+      reviews: {
+        include: {
+          customer: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
+        },
+      },
+      _count: {
+        select: {
+          reviews: true,
         },
       },
     },

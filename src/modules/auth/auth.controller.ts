@@ -22,14 +22,14 @@ const loginUser = catchAsync(async (req: Request, res: Response, next: NextFunct
   res.cookie('accessToken', accessToken, {
     httpOnly: true,
     secure: false,
-    sameSite: 'none',
-    maxAge: 60 * 60 * 24 * 1000, // 1 day
+    sameSite: 'lax',
+    maxAge: 60 * 60 * 24 * 1000, // 24 hours
   });
 
   res.cookie('refreshToken', refreshToken, {
     httpOnly: true,
     secure: false,
-    sameSite: 'none',
+    sameSite: 'lax',
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   });
 
@@ -56,8 +56,38 @@ const getMyProfile = catchAsync(async (req: Request, res: Response, next: NextFu
   });
 });
 
+const refreshToken = catchAsync(async (req, res) => {
+  // console.log('========== REFRESH HIT ==========');
+  // console.log(req.cookies);
+  const token = req.cookies.refreshToken;
+
+  if (!token) {
+    throw new Error('Refresh token missing');
+  }
+
+  const { accessToken } = await authService.refreshTokenFromDB(token);
+
+  res.cookie('accessToken', accessToken, {
+    httpOnly: true,
+    secure: false,
+    sameSite: 'lax',
+    // 10 seconds for testing, change to 1 minute in production
+    maxAge: 60 * 60 * 24 * 1000, // 24 hours
+  });
+
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: 'Token refreshed successfully',
+    data: {
+      accessToken,
+    },
+  });
+});
+
 export const authController = {
   registerUser,
   loginUser,
   getMyProfile,
+  refreshToken,
 };

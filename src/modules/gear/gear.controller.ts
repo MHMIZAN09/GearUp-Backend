@@ -6,13 +6,14 @@ import { gearService } from './gear.service';
 
 const getAllGear = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
   const query = req.query;
-  const gear = await gearService.getAllGear(query);
+  const result = await gearService.getAllGear(query);
 
   sendResponse(res, {
     statusCode: status.OK,
     success: true,
     message: 'Gear retrieved successfully',
-    data: gear,
+    data: result.gear,
+    meta: result.meta,
   });
 });
 
