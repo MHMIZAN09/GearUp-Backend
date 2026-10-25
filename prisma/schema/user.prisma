@@ -5,13 +5,13 @@ model User {
   password      String
   contactNumber String?
   address       String?
-  profilePhoto  String?
+  imageUrl      String     @default("")
+  imagePublicId String     @default("")
   role          Role       @default(CUSTOMER)
   status        UserStatus @default(ACTIVE)
 
   // provider relation
   gearItems     GearItem[]
-  notifications Notification[]
   reviews       Review[]
 
   rentalOrders RentalOrder[]

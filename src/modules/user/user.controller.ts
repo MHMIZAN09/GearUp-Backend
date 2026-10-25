@@ -45,8 +45,31 @@ const getMyAnalytics = catchAsync(async (req: Request, res: Response, next: Next
   });
 });
 
+const uploadProfileImage = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  const userId = req.user?.id;
+  const file = req.file;
+
+  if (!file) {
+    return res.status(status.BAD_REQUEST).json({
+      success: false,
+      message: 'No file uploaded',
+    });
+  }
+
+  const result = await userService.uploadProfileImage(userId as string, file.buffer);
+
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: 'Profile image uploaded successfully',
+    data: result,
+  });
+
+})
+
 export const userController = {
   updateMyProfile,
   getMyProfile,
   getMyAnalytics,
+  uploadProfileImage,
 };

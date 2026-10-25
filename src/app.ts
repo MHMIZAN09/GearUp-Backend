@@ -8,6 +8,7 @@ import swaggerUI from 'swagger-ui-express';
 import YAML from 'yamljs';
 import config from './config';
 import { globalErrorHandler } from './middlewares/globalErrorHandler';
+import { logger } from './middlewares/logger';
 import notFound from './middlewares/notFound';
 import { indexRoutes } from './routes';
 
@@ -15,7 +16,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: config.appUrl,
+    origin: config.frontendUrl,
     credentials: true,
   }),
 );
@@ -34,6 +35,7 @@ if (fs.existsSync(swaggerFilePath)) {
 app.get('/', (req: Request, res: Response) => {
   res.send('Welcome to GearUp Backend Api');
 });
+app.use(logger)
 
 app.use('/api', indexRoutes);
 
