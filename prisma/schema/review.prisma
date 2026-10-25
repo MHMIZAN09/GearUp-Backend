@@ -7,6 +7,8 @@ model Review {
   customerId    String
   rentalOrderId String
 
+  status ReviewStatus @default(VISIBLE)
+
   gearItem    GearItem    @relation(fields: [gearItemId], references: [id], onDelete: Cascade)
   customer    User        @relation(fields: [customerId], references: [id], onDelete: Cascade)
   rentalOrder RentalOrder @relation(fields: [rentalOrderId], references: [id], onDelete: Cascade)

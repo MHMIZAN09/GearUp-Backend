@@ -10,12 +10,13 @@ model User {
   status        UserStatus @default(ACTIVE)
 
   // provider relation
-  gearItems GearItem[]
+  gearItems     GearItem[]
+  notifications Notification[]
+  reviews       Review[]
 
   rentalOrders RentalOrder[]
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
 
   @@map("users")
-  reviews Review[]
 }

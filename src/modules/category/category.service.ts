@@ -26,6 +26,13 @@ const getAllCategories = async (query: ICategoryQuery) => {
     where: {
       AND: andConditions,
     },
+    include: {
+      _count: {
+        select: {
+          gearItems: true,
+        },
+      },
+    },
     take: limit,
     skip: skip,
     orderBy: {
@@ -36,6 +43,7 @@ const getAllCategories = async (query: ICategoryQuery) => {
     where: {
       AND: andConditions,
     },
+
   });
   return {
     categories,
@@ -53,6 +61,14 @@ const getCategoryById = async (categoryId: string) => {
     where: {
       id: categoryId,
     },
+    include: {
+      gearItems: true,
+      _count: {
+        select: {
+          gearItems: true,
+        },
+      },
+    }
   });
   if (!category) {
     throw new Error('Category not found');

@@ -7,6 +7,6 @@ const router = Router();
 router.post('/create', auth(Role.CUSTOMER), paymentController.createPayment);
 router.post('/', paymentController.verifyPayment);
 router.get('/', auth(Role.CUSTOMER), paymentController.getAllPayments);
-router.get('/:id', auth(Role.CUSTOMER), paymentController.getPaymentById);
+router.get('/:id', auth(Role.CUSTOMER, Role.ADMIN), paymentController.getPaymentById);
 
 export const paymentRoutes = router;

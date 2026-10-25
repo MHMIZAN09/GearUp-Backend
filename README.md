@@ -157,9 +157,25 @@ bunx --bun prisma migrate dev --name init
 # Generate Prisma Client
 bunx --bun prisma generate
 
-# Seed database (optional)
-bun prisma db seed
+# Seed the development/demo dataset (PowerShell)
+$env:SEED_DEMO_DATA="true"; bun prisma db seed
 ```
+
+The seed is idempotent and creates categories, gear with real Unsplash image URLs,
+provider/customer accounts, rental orders, payments, and a review. It is guarded by
+`SEED_DEMO_DATA=true` so demo records cannot be inserted accidentally into a
+production environment. Override the demo passwords before running the seed:
+
+```env
+SEED_ADMIN_EMAIL=admin.seed@gearup.example
+SEED_ADMIN_PASSWORD=ChangeMe_Admin_123!
+SEED_PROVIDER_PASSWORD=ChangeMe_Provider_123!
+SEED_CUSTOMER_PASSWORD=ChangeMe_Customer_123!
+```
+
+Change all development seed passwords before sharing seeded credentials. For a
+production catalog, replace the external Unsplash URLs with images hosted in the
+project's managed object storage/CDN.
 
 ### 5. Start Development Server
 

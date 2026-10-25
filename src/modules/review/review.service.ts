@@ -3,34 +3,37 @@ import { ReviewWhereInput } from '../../../generated/prisma/models';
 import { prisma } from '../../lib/prisma';
 import { IReviewQuery, TReview } from './review.interface';
 
-const createReview = async (customerId: string, payload: TReview) => {
+const createReview = async (
+  customerId: string,
+  payload: TReview,
+) => {
   const { gearItemId, rentalOrderId, rating, comment } = payload;
 
   const gearItem = await prisma.gearItem.findUnique({
-    where: {
-      id: gearItemId,
-    },
+    where: { id: gearItemId },
+    select: { id: true },
   });
 
   if (!gearItem) {
     throw new Error('Gear item not found');
   }
+
   const rentalOrder = await prisma.rentalOrder.findFirst({
     where: {
       id: rentalOrderId,
       customerId,
       status: 'RETURNED',
-
       rentalItems: {
-        some: {
-          gearItemId,
-        },
+        some: { gearItemId },
       },
     },
+    select: { id: true },
   });
 
   if (!rentalOrder) {
-    throw new Error('You can only review gear after returning the rental order');
+    throw new Error(
+      'You can only review gear after returning the rental order',
+    );
   }
 
   const existingReview = await prisma.review.findUnique({
@@ -44,16 +47,19 @@ const createReview = async (customerId: string, payload: TReview) => {
   });
 
   if (existingReview) {
-    throw new Error('You have already reviewed this gear for this rental order');
+    throw new Error(
+      'You have already reviewed this gear for this rental order',
+    );
   }
 
-  const result = await prisma.review.create({
+  return prisma.review.create({
     data: {
       gearItemId,
       customerId,
       rentalOrderId,
       rating,
       comment,
+      status: 'VISIBLE',
     },
     include: {
       gearItem: true,
@@ -68,61 +74,95 @@ const createReview = async (customerId: string, payload: TReview) => {
       },
     },
   });
-
-  return result;
 };
 
 const getAllReviews = async (query: IReviewQuery) => {
-  const limit = query.limit ? Number(query.limit) : 10;
-  const page = query.page ? Number(query.page) : 1;
+  const page = Math.max(1, Number(query.page) || 1);
+  const limit = Math.min(100, Math.max(1, Number(query.limit) || 10));
   const skip = (page - 1) * limit;
 
-  const sortBy = query.sortBy ? query.sortBy : 'createdAt';
-  const sortOrder = query.sortOrder ? query.sortOrder : 'desc';
+  const sortBy = query.sortBy || 'createdAt';
+  const sortOrder = query.sortOrder || 'desc';
+
+  const allowedSortFields = [
+    'createdAt',
+    'updatedAt',
+    'rating',
+  ];
+
+  if (!allowedSortFields.includes(sortBy)) {
+    throw new Error('Invalid sort field');
+  }
+
+  if (!['asc', 'desc'].includes(sortOrder)) {
+    throw new Error('Invalid sort order');
+  }
 
   const andConditions: ReviewWhereInput[] = [];
 
-  if (query.searchTerm) {
+  if (query.searchTerm?.trim()) {
+    const searchTerm = query.searchTerm.trim();
+
     andConditions.push({
       OR: [
-        { comment: { contains: query.searchTerm, mode: 'insensitive' } },
-        { gearItem: { name: { contains: query.searchTerm, mode: 'insensitive' } } },
-        { customer: { name: { contains: query.searchTerm, mode: 'insensitive' } } },
+        {
+          comment: {
+            contains: searchTerm,
+            mode: 'insensitive',
+          },
+        },
+        {
+          gearItem: {
+            name: {
+              contains: searchTerm,
+              mode: 'insensitive',
+            },
+          },
+        },
+        {
+          customer: {
+            name: {
+              contains: searchTerm,
+              mode: 'insensitive',
+            },
+          },
+        },
       ],
     });
   }
 
-  const result = await prisma.review.findMany({
-    where: {
-      AND: andConditions,
-    },
-    include: {
-      gearItem: true,
-      rentalOrder: true,
-      customer: {
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          role: true,
+  const where: ReviewWhereInput = {
+    AND: andConditions,
+    status: 'VISIBLE',
+  };
+
+  const [reviews, totalReviews] = await Promise.all([
+    prisma.review.findMany({
+      where,
+      include: {
+        gearItem: true,
+        rentalOrder: true,
+        customer: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+          },
         },
       },
-    },
-    take: limit,
-    skip: skip,
-    orderBy: {
-      [sortBy]: sortOrder,
-    },
-  });
+      take: limit,
+      skip,
+      orderBy: {
+        [sortBy]: sortOrder,
+      },
+    }),
 
-  const totalReviews = await prisma.review.count({
-    where: {
-      AND: andConditions,
-    },
-  });
+    prisma.review.count({ where }),
+  ]);
 
   return {
-    reviews: result,
+    data: reviews,
     meta: {
       page,
       limit,
@@ -134,9 +174,7 @@ const getAllReviews = async (query: IReviewQuery) => {
 
 const getReviewById = async (id: string) => {
   const review = await prisma.review.findUnique({
-    where: {
-      id,
-    },
+    where: { id },
     include: {
       gearItem: true,
       rentalOrder: true,
@@ -159,10 +197,8 @@ const getReviewById = async (id: string) => {
 };
 
 const getMyReviews = async (customerId: string) => {
-  const reviews = await prisma.review.findMany({
-    where: {
-      customerId,
-    },
+  return prisma.review.findMany({
+    where: { customerId },
     include: {
       gearItem: true,
       rentalOrder: true,
@@ -175,35 +211,36 @@ const getMyReviews = async (customerId: string) => {
         },
       },
     },
+    orderBy: {
+      createdAt: 'desc',
+    },
   });
-
-  return reviews;
 };
 
 const deleteReview = async (customer: JwtPayload, id: string) => {
   const existingReview = await prisma.review.findUnique({
-    where: {
-      id,
-    },
+    where: { id },
   });
 
   if (!existingReview) {
     throw new Error('Review not found');
   }
-  // customer own review and admin can delete review
 
-  if (existingReview.customerId !== customer.id && customer.role !== 'ADMIN') {
+  if (
+    existingReview.customerId !== customer.id &&
+    customer.role !== 'ADMIN'
+  ) {
     throw new Error('You are not authorized to delete this review');
   }
 
-  const deletedReview = await prisma.review.delete({
-    where: {
-      id,
-    },
+  return prisma.review.delete({
+    where: { id },
   });
-
-  return deletedReview;
 };
+
+
+
+
 
 export const reviewService = {
   createReview,

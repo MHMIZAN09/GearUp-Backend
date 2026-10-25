@@ -7,7 +7,11 @@
     "start": "node dist/server.js",
     "dev": "tsx watch ./src/server.ts",
     "build": "tsup",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prisma:seed": "bun prisma/seed.ts",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:studio": "prisma studio"
   },
   "devDependencies": {
     "@types/bun": "latest",
@@ -23,22 +27,32 @@
     "prisma": "^7.8.0",
     "tsx": "^4.23.0"
   },
+  "prisma": {
+    "seed": "bun run prisma:seed"
+  },
   "peerDependencies": {
     "typescript": "^6.0.3"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
+    "@types/multer": "^2.3.0",
     "axios": "^1.18.1",
     "bcryptjs": "^3.0.3",
     "chalk": "^5.6.2",
+    "cloudinary": "^2.11.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "google-auth-library": "^11.3.1",
     "http-status": "^2.1.0",
     "jsonwebtoken": "^9.0.3",
+    "multer": "^2.5.0",
+    "nodemailer": "^10.2.1",
     "pg": "^8.22.0",
+    "redis": "^6.3.0",
+    "socket.io": "^4.8.4",
     "sslcommerz-lts": "^1.2.0",
     "swagger-jsdoc": "^6.3.0",
     "swagger-ui-express": "^5.0.1",
