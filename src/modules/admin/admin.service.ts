@@ -9,6 +9,11 @@ import { ICreateCategory, IUpdateCategory } from '../category/category.interface
 import { IRentalQuery } from '../rental/rental.interface';
 import { IGearQuery, IPaymentQuery, IUserQuery } from './admin.interface';
 
+const withProfilePhoto = <T extends { imageUrl?: string | null }>(user: T) => ({
+  ...user,
+  profilePhoto: user.imageUrl ?? null,
+});
+
 const getAllUsers = async (query: IUserQuery) => {
   const limit = query.limit ? Number(query.limit) : 10;
   const page = query.page ? Number(query.page) : 1;
@@ -45,7 +50,7 @@ const getAllUsers = async (query: IUserQuery) => {
       name: true,
       email: true,
       status: true,
-      profilePhoto: true,
+      imageUrl: true,
       contactNumber: true,
       address: true,
     },
@@ -62,7 +67,7 @@ const getAllUsers = async (query: IUserQuery) => {
   });
 
   return {
-    users,
+    users: users.map(withProfilePhoto),
     meta: {
       page,
       limit,
@@ -83,11 +88,11 @@ const getUserById = async (userId: string) => {
       email: true,
       status: true,
       contactNumber: true,
-      profilePhoto: true,
+      imageUrl: true,
       address: true,
     },
   });
-  return user;
+  return user ? withProfilePhoto(user) : user;
 };
 
 const updateUserStatus = async (userId: string, status: UserStatus) => {
@@ -104,11 +109,11 @@ const updateUserStatus = async (userId: string, status: UserStatus) => {
       email: true,
       status: true,
       contactNumber: true,
-      profilePhoto: true,
+      imageUrl: true,
       address: true,
     },
   });
-  return updatedUser;
+  return withProfilePhoto(updatedUser);
 };
 
 const deleteUser = async (userId: string) => {
@@ -122,7 +127,7 @@ const deleteUser = async (userId: string) => {
       email: true,
       status: true,
       contactNumber: true,
-      profilePhoto: true,
+      imageUrl: true,
       address: true,
     },
   });
