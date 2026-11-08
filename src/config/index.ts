@@ -8,7 +8,7 @@ const config = {
   node_env: process.env.NODE_ENV!,
   databaseUrl: process.env.DATABASE_URL!,
   frontendUrl: process.env.FRONTEND_URL!,
-  backendUrl: process.env.PRODUCTION_BACKEND_URL || process.env.BACKEND_URL!,
+  backendUrl: process.env.BACKEND_URL!,
   bcrypt_salt_rounds: process.env.BCRYPT_SALT_ROUNDS!,
 
   jwt_access_secret: process.env.JWT_ACCESS_TOKEN_SECRET!,

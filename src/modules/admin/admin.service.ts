@@ -9,10 +9,6 @@ import { ICreateCategory, IUpdateCategory } from '../category/category.interface
 import { IRentalQuery } from '../rental/rental.interface';
 import { IGearQuery, IPaymentQuery, IUserQuery } from './admin.interface';
 
-const withProfilePhoto = <T extends { imageUrl?: string | null }>(user: T) => ({
-  ...user,
-  profilePhoto: user.imageUrl ?? null,
-});
 
 const getAllUsers = async (query: IUserQuery) => {
   const limit = query.limit ? Number(query.limit) : 10;
@@ -67,7 +63,7 @@ const getAllUsers = async (query: IUserQuery) => {
   });
 
   return {
-    users: users.map(withProfilePhoto),
+    users: users,
     meta: {
       page,
       limit,
@@ -92,7 +88,7 @@ const getUserById = async (userId: string) => {
       address: true,
     },
   });
-  return user ? withProfilePhoto(user) : user;
+  return user ;
 };
 
 const updateUserStatus = async (userId: string, status: UserStatus) => {
@@ -113,7 +109,7 @@ const updateUserStatus = async (userId: string, status: UserStatus) => {
       address: true,
     },
   });
-  return withProfilePhoto(updatedUser);
+  return updatedUser;
 };
 
 const deleteUser = async (userId: string) => {
