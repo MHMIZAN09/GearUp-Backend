@@ -49,14 +49,20 @@ const uploadProfileImage = catchAsync(async (req: Request, res: Response, next: 
   const userId = req.user?.id;
   const file = req.file;
 
+  if (!userId) {
+    throw new Error('Authenticated user not found');
+  }
+
   if (!file) {
     return res.status(status.BAD_REQUEST).json({
       success: false,
+      statusCode: status.BAD_REQUEST,
       message: 'No file uploaded',
+      data: null,
     });
   }
 
-  const result = await userService.uploadProfileImage(userId as string, file.buffer);
+  const result = await userService.uploadProfileImage(userId, file.buffer);
 
   sendResponse(res, {
     statusCode: status.OK,

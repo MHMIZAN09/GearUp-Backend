@@ -36,3 +36,7 @@ enum ReviewStatus {
   VISIBLE
 }
 
+enum AuthProvider {
+  GOOGLE
+  CREDENTIAL
+}

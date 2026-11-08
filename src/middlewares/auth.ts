@@ -24,7 +24,15 @@ export const auth = (...requiredRoles: Role[]) => {
       throw new Error(verifiedToken.error);
     }
 
-    const { email, id, role } = verifiedToken.data as JwtPayload;
+    const { email, userId, id, role } = verifiedToken.data as JwtPayload & {
+      userId?: string;
+      id?: string;
+    };
+    const authenticatedUserId = userId ?? id;
+
+    if (!authenticatedUserId || typeof email !== 'string' || !role) {
+      throw new Error('Invalid authentication token');
+    }
 
     if (requiredRoles.length && !requiredRoles.includes(role)) {
       throw new Error("Forbidden. You don't have permission to access this resource.");
@@ -32,7 +40,7 @@ export const auth = (...requiredRoles: Role[]) => {
 
     const user = await prisma.user.findUnique({
       where: {
-        id,
+        id: authenticatedUserId,
         email,
         role,
       },
@@ -48,7 +56,7 @@ export const auth = (...requiredRoles: Role[]) => {
 
     req.user = {
       email,
-      id,
+      id: authenticatedUserId,
       role,
     };
 

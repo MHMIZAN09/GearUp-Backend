@@ -5,6 +5,7 @@ dotenv.config({ path: path.join(process.cwd(), '.env'), quiet: true });
 
 const config = {
   port: process.env.PORT!,
+  node_env: process.env.NODE_ENV!,
   databaseUrl: process.env.DATABASE_URL!,
   frontendUrl: process.env.FRONTEND_URL!,
   backendUrl: process.env.BACKEND_URL!,
@@ -22,15 +23,20 @@ const config = {
   ssl_commerz_store_id: process.env.SSLCOMMERZ_STORE_ID!,
   ssl_commerz_store_pass: process.env.SSLCOMMERZ_STORE_PASSWORD!,
   google_client_id: process.env.GOOGLE_CLIENT_ID!,
+  google_client_secret: process.env.GOOGLE_CLIENT_SECRET!,
+
   cloudinary_cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
   cloudinary_api_key: process.env.CLOUDINARY_API_KEY!,
+
   cloudinary_api_secret: process.env.CLOUDINARY_API_SECRET!,
   redis_host: process.env.REDIS_HOST!,
   redis_port: process.env.REDIS_PORT!,
   redis_user: process.env.REDIS_USER!,
   redis_password: process.env.REDIS_PASSWORD!,
+  
   smtp_user: process.env.SMTP_USER!,
   smtp_password: process.env.SMTP_PASSWORD!,
+  email_sender: process.env.EMAIL_SENDER!,
 };
 
 export default config;
